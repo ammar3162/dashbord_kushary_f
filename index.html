@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>نظام الإقفالات - صبيا وصامطة</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--p:#6366f1;--p2:#8b5cf6;--ok:#10b981;--warn:#f59e0b;--err:#ef4444;--info:#38bdf8;--bg:#0f172a;--card:#1e293b;--bdr:#334155}
+body{font-family:'Cairo',sans-serif;background:var(--bg);color:#e2e8f0;min-height:100vh;direction:rtl}
+
+/* ── HEADER ── */
+header{background:var(--card);border-bottom:1px solid var(--bdr);padding:0 24px;height:62px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:99}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-ic{width:38px;height:38px;background:linear-gradient(135deg,var(--p),var(--p2));border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:17px}
+.logo h1{font-size:15px;font-weight:700;color:#f1f5f9}.logo span{font-size:11px;color:#64748b;display:block}
+.hdr-r{display:flex;align-items:center;gap:10px}
+#clk{font-size:12px;color:#64748b;font-weight:600;background:#0f172a;padding:5px 11px;border-radius:8px}
+.rbtn{padding:7px 14px;background:var(--p);border:none;border-radius:8px;color:#fff;font-family:'Cairo',sans-serif;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px}
+.rbtn:hover{opacity:.85}
+.rbtn.spin i{animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── TABS ── */
+.tabs{background:var(--card);border-bottom:1px solid var(--bdr);padding:0 24px;display:flex;gap:4px}
+.tab{padding:14px 20px;font-size:13px;font-weight:700;color:#64748b;cursor:pointer;border-bottom:3px solid transparent;transition:all .2s;display:flex;align-items:center;gap:7px;white-space:nowrap}
+.tab:hover{color:#94a3b8}
+.tab.active{color:var(--p);border-bottom-color:var(--p)}
+
+/* ── STATUS ── */
+.sbar{background:#0f172a;padding:7px 24px;display:flex;align-items:center;gap:8px;font-size:11px;border-bottom:1px solid var(--bdr)}
+.sdot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.sdot.ok{background:var(--ok);animation:pulse 2s infinite}
+.sdot.ld{background:var(--warn)}
+.sdot.er{background:var(--err)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* ── MAIN ── */
+main{padding:20px 24px;max-width:1440px;margin:0 auto}
+.page{display:none}.page.active{display:block}
+.sec{font-size:11px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px;display:flex;align-items:center;gap:7px}
+.sec::before{content:'';width:3px;height:13px;background:var(--p);border-radius:2px}
+
+/* ── STAT CARDS ── */
+.sg{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:22px}
+.sc{background:var(--card);border:1px solid var(--bdr);border-radius:12px;padding:16px;transition:transform .2s}
+.sc:hover{transform:translateY(-2px)}
+.sc-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.sc-ic{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.sc1 .sc-ic{background:rgba(16,185,129,.15);color:var(--ok)}
+.sc2 .sc-ic{background:rgba(99,102,241,.15);color:var(--p)}
+.sc3 .sc-ic{background:rgba(56,189,248,.15);color:var(--info)}
+.sc4 .sc-ic{background:rgba(245,158,11,.15);color:var(--warn)}
+.sc5 .sc-ic{background:rgba(239,68,68,.15);color:var(--err)}
+.sc-v{font-size:21px;font-weight:900;color:#f1f5f9}
+.sc-l{font-size:11px;color:#64748b;margin-top:3px}
+.sc-sub{font-size:10px;color:#475569;margin-top:5px}
+
+/* ── BADGES ── */
+.bdg{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:700}
+.b-gn{background:rgba(16,185,129,.15);color:var(--ok)}
+.b-yw{background:rgba(245,158,11,.15);color:var(--warn)}
+.b-rd{background:rgba(239,68,68,.15);color:var(--err)}
+.b-bl{background:rgba(99,102,241,.15);color:var(--p)}
+
+/* ── GRID ── */
+.mg{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+
+/* ── TABLE CARD ── */
+.tc{background:var(--card);border:1px solid var(--bdr);border-radius:12px;overflow:hidden;margin-bottom:20px}
+.th{padding:13px 16px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.tt{font-size:13px;font-weight:700;color:#f1f5f9;display:flex;align-items:center;gap:7px}
+.tw{overflow-x:auto;max-height:380px;overflow-y:auto}
+.tw::-webkit-scrollbar{width:3px;height:3px}
+.tw::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:3px}
+table{width:100%;border-collapse:collapse;font-size:11px}
+thead th{background:#0f172a;color:#475569;font-weight:700;padding:8px 11px;text-align:right;white-space:nowrap;position:sticky;top:0;z-index:1;border-bottom:1px solid var(--bdr)}
+tbody tr{border-bottom:1px solid #1a2740;transition:background .15s}
+tbody tr:hover{background:#1e2d45}
+tbody tr:last-child{border-bottom:none}
+td{padding:8px 11px;color:#cbd5e1;white-space:nowrap}
+td.nm{color:#f1f5f9;font-weight:700}
+td.am{font-weight:800;color:#f1f5f9}
+td.tm{color:#475569;font-size:10px}
+.db{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:20px;font-size:10px;font-weight:700}
+.dok{background:rgba(16,185,129,.15);color:var(--ok)}
+.dup{background:rgba(245,158,11,.15);color:var(--warn)}
+.ddn{background:rgba(239,68,68,.15);color:var(--err)}
+
+/* ── FILTERS ── */
+.filters{display:flex;gap:8px;padding:12px 16px;border-bottom:1px solid var(--bdr);flex-wrap:wrap;align-items:center}
+.fi-sm{padding:6px 10px;background:#0f172a;border:1.5px solid var(--bdr);border-radius:7px;color:#f1f5f9;font-family:'Cairo',sans-serif;font-size:11px;outline:none;cursor:pointer;transition:border-color .2s}
+.fi-sm:focus{border-color:var(--p)}
+.cbtn{padding:6px 12px;background:transparent;border:1.5px solid var(--bdr);border-radius:7px;color:#64748b;font-family:'Cairo',sans-serif;font-size:11px;cursor:pointer;transition:.2s;white-space:nowrap}
+.cbtn:hover{border-color:var(--err);color:var(--err)}
+
+/* ── REPORTS PAGE ── */
+.rp-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
+.rp-card{background:var(--card);border:1px solid var(--bdr);border-radius:12px;padding:16px}
+.rp-card h3{font-size:11px;color:#64748b;margin-bottom:6px}
+.rp-card .val{font-size:20px;font-weight:900;color:#f1f5f9}
+.rp-card .sub{font-size:10px;color:#475569;margin-top:4px}
+
+.date-range{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--bdr);flex-wrap:wrap}
+.date-range label{font-size:12px;color:#94a3b8;font-weight:600;white-space:nowrap}
+.date-range input,.date-range select{padding:7px 11px;background:#0f172a;border:1.5px solid var(--bdr);border-radius:8px;color:#f1f5f9;font-family:'Cairo',sans-serif;font-size:12px;outline:none}
+.date-range input:focus,.date-range select:focus{border-color:var(--p)}
+.run-btn{padding:8px 18px;background:linear-gradient(135deg,var(--p),var(--p2));border:none;border-radius:8px;color:#fff;font-family:'Cairo',sans-serif;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap}
+.run-btn:hover{opacity:.85}
+.exp-btn{padding:8px 16px;background:linear-gradient(135deg,var(--ok),#059669);border:none;border-radius:8px;color:#fff;font-family:'Cairo',sans-serif;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap;margin-right:auto}
+.exp-btn:hover{opacity:.85}
+.exp-btn:disabled{opacity:.4;cursor:not-allowed}
+
+/* ── CHART ── */
+.chart-wrap{padding:16px}
+.chart-bar-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.chart-lbl{font-size:11px;color:#94a3b8;width:80px;text-align:left;flex-shrink:0}
+.chart-bar-bg{flex:1;height:22px;background:#0f172a;border-radius:6px;overflow:hidden}
+.chart-bar-fill{height:100%;border-radius:6px;display:flex;align-items:center;padding-right:8px;font-size:10px;font-weight:700;color:#fff;transition:width .8s ease;min-width:2px}
+.chart-val{font-size:11px;color:#94a3b8;width:90px;text-align:right;flex-shrink:0}
+
+/* ── EMPTY / SKELETON ── */
+.empty{padding:28px;text-align:center;color:#334155;font-size:12px}
+.empty i{font-size:26px;display:block;margin-bottom:7px;opacity:.3}
+.sk{background:linear-gradient(90deg,#1e293b 25%,#263248 50%,#1e293b 75%);background-size:200%;animation:sh 1.4s infinite;border-radius:5px;height:12px;margin:6px 0}
+@keyframes sh{0%{background-position:200%}100%{background-position:-200%}}
+
+/* ── TOAST ── */
+#toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%) translateY(14px);background:var(--card);border:1px solid var(--bdr);color:#f1f5f9;padding:9px 16px;border-radius:10px;font-size:12px;font-weight:700;z-index:999;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;display:flex;align-items:center;gap:7px;box-shadow:0 8px 20px rgba(0,0,0,.4)}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#toast.tok{border-color:var(--ok);color:var(--ok)}
+#toast.ter{border-color:var(--err);color:var(--err)}
+#toast.twn{border-color:var(--warn);color:var(--warn)}
+
+/* ── RESPONSIVE ── */
+@media(max-width:1100px){.sg{grid-template-columns:repeat(3,1fr)}.rp-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:800px){.sg{grid-template-columns:repeat(2,1fr)}.mg{grid-template-columns:1fr}.rp-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:520px){main{padding:12px}header{padding:0 14px}.tabs{padding:0 10px}.tab{padding:12px 10px;font-size:12px}.sg{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">
+    <div class="logo-ic"><i class="fas fa-chart-line"></i></div>
+    <div><h1>نظام الإقفالات</h1><span>فروع صبيا وصامطة</span></div>
+  </div>
+  <div class="hdr-r">
+    <span id="clk">--:--:--</span>
+    <button class="rbtn" id="rbtn" onclick="loadAll(true)"><i class="fas fa-sync-alt"></i> تحديث</button>
+  </div>
+</header>
+
+<!-- TABS -->
+<div class="tabs">
+  <div class="tab active" id="tab-dash" onclick="switchTab('dash')">
+    <i class="fas fa-tachometer-alt"></i> داشبورد المدير
+  </div>
+  <div class="tab" id="tab-rep" onclick="switchTab('rep')">
+    <i class="fas fa-chart-bar"></i> تقارير المحاسب
+  </div>
+</div>
+
+<!-- STATUS -->
+<div class="sbar"><div class="sdot ld" id="sdot"></div><span id="stxt">جاري تحميل البيانات...</span></div>
+
+<main>
+
+<!-- ══════════════════════════════════════
+     صفحة المدير - DASHBOARD
+══════════════════════════════════════ -->
+<div class="page active" id="page-dash">
+
+  <div class="sec">ملخص اليوم</div>
+  <div class="sg" id="sg">
+    <div class="sc sc1"><div class="sk"></div><div class="sk" style="width:55%"></div></div>
+    <div class="sc sc2"><div class="sk"></div><div class="sk" style="width:55%"></div></div>
+    <div class="sc sc3"><div class="sk"></div><div class="sk" style="width:55%"></div></div>
+    <div class="sc sc4"><div class="sk"></div><div class="sk" style="width:55%"></div></div>
+    <div class="sc sc5"><div class="sk"></div><div class="sk" style="width:55%"></div></div>
+  </div>
+
+  <div class="sec">آخر إقفالات الفروع</div>
+  <div class="mg">
+    <div class="tc">
+      <div class="th">
+        <div class="tt"><i class="fas fa-map-marker-alt" style="color:var(--p)"></i> فرع صبيا <span class="bdg b-bl" id="c1">--</span></div>
+        <span style="font-size:11px;color:#64748b" id="t1">--</span>
+      </div>
+      <div class="tw" id="tb1"><div class="empty"><div class="sk"></div><div class="sk"></div></div></div>
+    </div>
+    <div class="tc">
+      <div class="th">
+        <div class="tt"><i class="fas fa-map-marker-alt" style="color:var(--warn)"></i> فرع صامطة <span class="bdg b-yw" id="c2">--</span></div>
+        <span style="font-size:11px;color:#64748b" id="t2">--</span>
+      </div>
+      <div class="tw" id="tb2"><div class="empty"><div class="sk"></div><div class="sk"></div></div></div>
+    </div>
+  </div>
+
+  <div class="sec">جميع السجلات</div>
+  <div class="tc">
+    <div class="filters">
+      <select class="fi-sm" id="fBr" onchange="filterAll()">
+        <option value="">كل الفروع</option>
+        <option value="صبيا">صبيا</option>
+        <option value="صامطة">صامطة</option>
+      </select>
+      <select class="fi-sm" id="fDf" onchange="filterAll()">
+        <option value="">كل الحالات</option>
+        <option value="ok">مطابق</option>
+        <option value="up">زيادة</option>
+        <option value="dn">نقص</option>
+      </select>
+      <input class="fi-sm" id="fEm" type="text" placeholder="اسم الموظف..." oninput="filterAll()" style="flex:1;min-width:130px">
+      <input class="fi-sm" id="fDt" type="date" onchange="filterAll()">
+      <button class="cbtn" onclick="clearF()"><i class="fas fa-times"></i> مسح</button>
+      <span style="font-size:11px;color:#475569" id="fCnt">--</span>
+    </div>
+    <div class="tw" style="max-height:420px" id="allTbl">
+      <div class="empty"><div class="sk"></div><div class="sk"></div><div class="sk"></div></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════
+     صفحة المحاسب - REPORTS
+══════════════════════════════════════ -->
+<div class="page" id="page-rep">
+
+  <div class="sec">إعداد التقرير</div>
+  <div class="tc">
+    <div class="date-range">
+      <label>من</label>
+      <input type="date" id="rFrom">
+      <label>إلى</label>
+      <input type="date" id="rTo">
+      <select class="fi-sm" id="rBr" style="padding:7px 11px">
+        <option value="all">كل الفروع</option>
+        <option value="صبيا">فرع صبيا</option>
+        <option value="صامطة">فرع صامطة</option>
+      </select>
+      <button class="run-btn" onclick="runReport()"><i class="fas fa-search"></i> تشغيل التقرير</button>
+      <button class="exp-btn" id="expBtn" onclick="exportExcel()" disabled><i class="fas fa-file-excel"></i> تصدير Excel</button>
+    </div>
+  </div>
+
+  <!-- REPORT STATS -->
+  <div class="rp-grid" id="rpStats">
+    <div class="rp-card"><h3>إجمالي المبيعات</h3><div class="val" id="rp_sales">--</div><div class="sub">ر.س</div></div>
+    <div class="rp-card"><h3>عدد الإقفالات</h3><div class="val" id="rp_count">--</div><div class="sub">إقفال</div></div>
+    <div class="rp-card"><h3>إجمالي الشبكة</h3><div class="val" id="rp_net">--</div><div class="sub">ر.س</div></div>
+    <div class="rp-card"><h3>إجمالي الفروق</h3><div class="val" id="rp_diff">--</div><div class="sub">ر.س</div></div>
+    <div class="rp-card"><h3>الزيادات</h3><div class="val" id="rp_inc" style="color:var(--warn)">--</div><div class="sub">ر.س</div></div>
+    <div class="rp-card"><h3>النقص</h3><div class="val" id="rp_dec" style="color:var(--err)">--</div><div class="sub">ر.س</div></div>
+    <div class="rp-card"><h3>نسبة المطابقة</h3><div class="val" id="rp_match" style="color:var(--ok)">--</div><div class="sub">%</div></div>
+    <div class="rp-card"><h3>متوسط الإقفال</h3><div class="val" id="rp_avg">--</div><div class="sub">ر.س</div></div>
+  </div>
+
+  <!-- CHART -->
+  <div class="sec">المبيعات حسب الفرع</div>
+  <div class="tc" style="margin-bottom:20px">
+    <div class="chart-wrap" id="rpChart">
+      <div class="empty"><i class="fas fa-chart-bar"></i>شغّل التقرير لعرض الرسم البياني</div>
+    </div>
+  </div>
+
+  <!-- REPORT TABLE -->
+  <div class="sec">تفاصيل السجلات</div>
+  <div class="tc">
+    <div class="tw" style="max-height:500px" id="rpTbl">
+      <div class="empty"><i class="fas fa-table"></i>شغّل التقرير لعرض البيانات</div>
+    </div>
+  </div>
+
+</div>
+</main>
+<div id="toast"></div>
+
+<script>
+const API = 'https://script.google.com/macros/s/AKfycbw-F4spqURxRH5FeUpwobJM8y49YPSH4V2f0OB649V71eVVNX7IbBojCNkFqt-PuzVp/exec';
+let ALL = [], RPT_ROWS = [];
+
+/* ── CLOCK ── */
+function tick(){
+  const n=new Date(),h=n.getHours(),m=n.getMinutes(),s=n.getSeconds();
+  const ap=h>=12?'م':'ص',hh=(h%12||12).toString().padStart(2,'0');
+  $('clk').textContent=`${hh}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')} ${ap}`;
+}
+setInterval(tick,1000);tick();
+
+/* ── TABS ── */
+function switchTab(t){
+  ['dash','rep'].forEach(id=>{
+    $('tab-'+id).classList.toggle('active',id===t);
+    $('page-'+id).classList.toggle('active',id===t);
+  });
+}
+
+/* ── SET DEFAULT DATES ── */
+function setDefaultDates(){
+  const today=new Date().toISOString().split('T')[0];
+  const first=new Date(new Date().getFullYear(),new Date().getMonth(),1).toISOString().split('T')[0];
+  $('rFrom').value=first;
+  $('rTo').value=today;
+}
+
+/* ── FETCH ── */
+async function apiFetch(qs){
+  const r=await fetch(`${API}?${qs}`);
+  return await r.json();
+}
+
+/* ── LOAD ALL ── */
+async function loadAll(manual=false){
+  const btn=$('rbtn'),dot=$('sdot'),stxt=$('stxt');
+  btn.classList.add('spin');
+  dot.className='sdot ld';
+  stxt.textContent='جاري تحميل البيانات...';
+  try{
+    const [sum,all]=await Promise.all([
+      apiFetch('action=getSummary'),
+      apiFetch('action=getAll')
+    ]);
+    if(!sum.success||!all.success) throw new Error('خطأ في الاستجابة');
+    buildStats(sum);
+    const s=all.sabya||[], m=all.samta||[];
+    buildBranch('tb1','c1','t1',s,'صبيا');
+    buildBranch('tb2','c2','t2',m,'صامطة');
+    ALL=[...s,...m].sort((a,b)=>b.date.localeCompare(a.date));
+    filterAll();
+    dot.className='sdot ok';
+    stxt.textContent='آخر تحديث: '+new Date().toLocaleTimeString('ar-SA')+' ← متزامن مع Google Sheets';
+    if(manual) toast('✅ تم التحديث','tok');
+  }catch(err){
+    dot.className='sdot er';
+    stxt.textContent='❌ خطأ: '+err.message;
+    toast('فشل التحميل','ter');
+  }
+  btn.classList.remove('spin');
+}
+
+/* ── STATS CARDS ── */
+function buildStats(s){
+  const t=s.today||{},sa=s.sabya||{},sm=s.samta||{};
+  const totDiff=Math.abs(t.totalDiff||0),totSys=t.totalSys||1;
+  const match=Math.max(0,Math.min(100,(100-totDiff/totSys*100)));
+  const mc=match>=98?'b-gn':match>=94?'b-yw':'b-rd';
+  $('sg').innerHTML=`
+    <div class="sc sc1">
+      <div class="sc-top"><div class="sc-ic"><i class="fas fa-coins"></i></div></div>
+      <div class="sc-v">${fmt(t.totalSales||0)}</div>
+      <div class="sc-l">مبيعات اليوم (ر.س)</div>
+      <div class="sc-sub">صبيا: ${fmt(sa.totalSales||0)} | صامطة: ${fmt(sm.totalSales||0)}</div>
+    </div>
+    <div class="sc sc2">
+      <div class="sc-top"><div class="sc-ic"><i class="fas fa-lock"></i></div></div>
+      <div class="sc-v">${t.count||0}</div>
+      <div class="sc-l">إقفالات اليوم</div>
+      <div class="sc-sub">صبيا: ${t.sabya||0} | صامطة: ${t.samta||0}</div>
+    </div>
+    <div class="sc sc3">
+      <div class="sc-top"><div class="sc-ic"><i class="fas fa-credit-card"></i></div></div>
+      <div class="sc-v">${fmt(t.totalNet||0)}</div>
+      <div class="sc-l">إجمالي الشبكة (ر.س)</div>
+    </div>
+    <div class="sc sc4">
+      <div class="sc-top"><div class="sc-ic"><i class="fas fa-arrow-up"></i></div></div>
+      <div class="sc-v">${fmt(t.totalInc||0)}</div>
+      <div class="sc-l">الزيادات (ر.س)</div>
+    </div>
+    <div class="sc sc5">
+      <div class="sc-top"><div class="sc-ic"><i class="fas fa-balance-scale"></i></div><span class="bdg ${mc}">${match.toFixed(1)}%</span></div>
+      <div class="sc-v">${fmt(totDiff)}</div>
+      <div class="sc-l">إجمالي الفروق (ر.س)</div>
+    </div>`;
+}
+
+/* ── BRANCH TABLE ── */
+function buildBranch(tbId,cId,tId,rows,br){
+  const tot=rows.reduce((s,r)=>s+(r.actual||0),0);
+  $(cId).textContent=rows.length+' إقفال';
+  $(tId).textContent='الإجمالي: '+fmt(tot)+' ر.س';
+  if(!rows.length){$(tbId).innerHTML=`<div class="empty"><i class="fas fa-inbox"></i>لا توجد إقفالات اليوم</div>`;return}
+  $(tbId).innerHTML=`<table>
+    <thead><tr><th>الوقت</th><th>الموظف</th><th>النظام</th><th>الفعلي</th><th>الفرق</th></tr></thead>
+    <tbody>${rows.slice(0,10).map(r=>`<tr>
+      <td class="tm">${r.timeStr||'—'}</td>
+      <td class="nm">${r.employee||'—'}</td>
+      <td class="am">${fmt(r.sys)}</td>
+      <td class="am">${fmt(r.actual)}</td>
+      <td>${dBadge(r.diff)}</td>
+    </tr>`).join('')}</tbody>
+  </table>`;
+}
+
+/* ── ALL TABLE ── */
+function filterAll(){
+  const br=$('fBr').value,df=$('fDf').value;
+  const em=$('fEm').value.trim().toLowerCase(),dt=$('fDt').value;
+  let rows=[...ALL];
+  if(br) rows=rows.filter(r=>r.branch===br);
+  if(df==='ok') rows=rows.filter(r=>r.diff===0);
+  else if(df==='up') rows=rows.filter(r=>r.diff>0);
+  else if(df==='dn') rows=rows.filter(r=>r.diff<0);
+  if(em) rows=rows.filter(r=>(r.employee||'').toLowerCase().includes(em));
+  if(dt) rows=rows.filter(r=>r.dateStr===dt);
+  $('fCnt').textContent=rows.length+' سجل';
+  if(!rows.length){$('allTbl').innerHTML=`<div class="empty"><i class="fas fa-search"></i>لا توجد نتائج</div>`;return}
+  $('allTbl').innerHTML=`<table>
+    <thead><tr><th>الفرع</th><th>التاريخ</th><th>الوقت</th><th>الموظف</th><th>النظام</th><th>كاش</th><th>مدى</th><th>فيزا</th><th>الشبكة</th><th>الفعلي</th><th>زيادة</th><th>نقص</th><th>الفرق</th></tr></thead>
+    <tbody>${rows.map(r=>`<tr>
+      <td><span class="bdg ${r.branch==='صبيا'?'b-bl':'b-yw'}">${r.branch}</span></td>
+      <td class="tm">${r.dateStr||'—'}</td><td class="tm">${r.timeStr||'—'}</td>
+      <td class="nm">${r.employee||'—'}</td>
+      <td class="am">${fmt(r.sys)}</td>
+      <td>${fmt(r.cash)}</td><td>${fmt(r.mada)}</td><td>${fmt(r.visa)}</td>
+      <td class="am">${fmt(r.net)}</td><td class="am">${fmt(r.actual)}</td>
+      <td style="color:${r.inc>0?'var(--warn)':'#334155'}">${r.inc>0?'+'+fmt(r.inc):'—'}</td>
+      <td style="color:${r.dec>0?'var(--err)':'#334155'}">${r.dec>0?'-'+fmt(r.dec):'—'}</td>
+      <td>${dBadge(r.diff)}</td>
+    </tr>`).join('')}</tbody>
+  </table>`;
+}
+function clearF(){$('fBr').value='';$('fDf').value='';$('fEm').value='';$('fDt').value='';filterAll()}
+
+/* ── RUN REPORT ── */
+async function runReport(){
+  const from=$('rFrom').value,to=$('rTo').value,br=$('rBr').value;
+  if(!from||!to){toast('اختر الفترة الزمنية','twn');return}
+  toast('جاري إعداد التقرير...','twn');
+  try{
+    const res=await apiFetch(`action=getReport&from=${from}&to=${to}&branch=${br}`);
+    if(!res.success) throw new Error(res.error);
+    RPT_ROWS=res.rows||[];
+    // Stats
+    const match=res.totalSys>0?Math.max(0,Math.min(100,100-Math.abs(res.totalDiff)/res.totalSys*100)):100;
+    const avg=res.count>0?res.totalSales/res.count:0;
+    $('rp_sales').textContent=fmt(res.totalSales);
+    $('rp_count').textContent=res.count;
+    $('rp_net').textContent=fmt(res.totalNet);
+    $('rp_diff').textContent=fmt(Math.abs(res.totalDiff));
+    $('rp_inc').textContent=fmt(res.totalInc);
+    $('rp_dec').textContent=fmt(res.totalDec);
+    $('rp_match').textContent=match.toFixed(1)+'%';
+    $('rp_avg').textContent=fmt(avg);
+    // Chart
+    buildChart(RPT_ROWS);
+    // Table
+    buildRptTable(RPT_ROWS);
+    $('expBtn').disabled=false;
+    toast('✅ تم إعداد التقرير','tok');
+  }catch(err){toast('خطأ: '+err.message,'ter')}
+}
+
+/* ── CHART ── */
+function buildChart(rows){
+  if(!rows.length){$('rpChart').innerHTML=`<div class="empty"><i class="fas fa-chart-bar"></i>لا توجد بيانات</div>`;return}
+  // Group by date
+  const byDate={};
+  rows.forEach(r=>{
+    const d=r.dateStr||'—';
+    if(!byDate[d]) byDate[d]={sabya:0,samta:0};
+    if(r.branch==='صبيا') byDate[d].sabya+=r.actual||0;
+    else byDate[d].samta+=r.actual||0;
+  });
+  const dates=Object.keys(byDate).sort().slice(-10);
+  const maxVal=Math.max(...dates.map(d=>byDate[d].sabya+byDate[d].samta),1);
+  $('rpChart').innerHTML=dates.map(d=>{
+    const s=byDate[d].sabya,m=byDate[d].samta,tot=s+m;
+    const sw=Math.round(s/maxVal*100),mw=Math.round(m/maxVal*100);
+    return`<div class="chart-bar-row">
+      <div class="chart-lbl">${d.slice(5)}</div>
+      <div style="flex:1;display:flex;flex-direction:column;gap:3px">
+        <div class="chart-bar-bg" title="صبيا: ${fmt(s)} ر.س">
+          <div class="chart-bar-fill" style="width:${sw}%;background:linear-gradient(90deg,var(--p),var(--p2))">صبيا</div>
+        </div>
+        <div class="chart-bar-bg" title="صامطة: ${fmt(m)} ر.س">
+          <div class="chart-bar-fill" style="width:${mw}%;background:linear-gradient(90deg,var(--warn),#d97706)">صامطة</div>
+        </div>
+      </div>
+      <div class="chart-val">${fmt(tot)} ر.س</div>
+    </div>`;
+  }).join('');
+}
+
+/* ── REPORT TABLE ── */
+function buildRptTable(rows){
+  if(!rows.length){$('rpTbl').innerHTML=`<div class="empty"><i class="fas fa-inbox"></i>لا توجد سجلات</div>`;return}
+  $('rpTbl').innerHTML=`<table>
+    <thead><tr><th>الفرع</th><th>التاريخ</th><th>الوقت</th><th>الموظف</th><th>النظام</th><th>كاش</th><th>مدى</th><th>فيزا</th><th>الشبكة</th><th>الفعلي</th><th>الفرق</th></tr></thead>
+    <tbody>${rows.map(r=>`<tr>
+      <td><span class="bdg ${r.branch==='صبيا'?'b-bl':'b-yw'}">${r.branch}</span></td>
+      <td class="tm">${r.dateStr||'—'}</td><td class="tm">${r.timeStr||'—'}</td>
+      <td class="nm">${r.employee||'—'}</td>
+      <td class="am">${fmt(r.sys)}</td>
+      <td>${fmt(r.cash)}</td><td>${fmt(r.mada)}</td><td>${fmt(r.visa)}</td>
+      <td class="am">${fmt(r.net)}</td><td class="am">${fmt(r.actual)}</td>
+      <td>${dBadge(r.diff)}</td>
+    </tr>`).join('')}</tbody>
+  </table>`;
+}
+
+/* ── EXPORT EXCEL ── */
+function exportExcel(){
+  if(!RPT_ROWS.length){toast('لا توجد بيانات للتصدير','twn');return}
+  const from=$('rFrom').value,to=$('rTo').value,br=$('rBr').value;
+  const headers=['الفرع','التاريخ','الوقت','الموظف','إقفال النظام','الكاش','مدى','فيزا','إجمالي الشبكة','الإجمالي الفعلي','الزيادة','النقص','الفرق'];
+  const rows=RPT_ROWS.map(r=>[
+    r.branch,r.dateStr,r.timeStr,r.employee,
+    r.sys,r.cash,r.mada,r.visa,r.net,r.actual,r.inc,r.dec,r.diff
+  ]);
+  // Build CSV
+  const csv=[headers,...rows].map(r=>r.map(c=>`"${c}"`).join(',')).join('\n');
+  const bom='\uFEFF';
+  const blob=new Blob([bom+csv],{type:'text/csv;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download=`تقرير_الإقفالات_${br==='all'?'كل_الفروع':br}_${from}_${to}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('✅ تم تصدير الملف','tok');
+}
+
+/* ── HELPERS ── */
+const $=id=>document.getElementById(id);
+const fmt=n=>Number(n).toLocaleString('ar-SA',{minimumFractionDigits:2,maximumFractionDigits:2});
+function dBadge(d){
+  if(d===0) return`<span class="db dok"><i class="fas fa-check"></i> مطابق</span>`;
+  if(d>0)   return`<span class="db dup">+${fmt(d)}</span>`;
+  return`<span class="db ddn">${fmt(d)}</span>`;
+}
+let tt;
+function toast(msg,type='tok'){
+  const t=$('toast');
+  t.innerHTML=`<i class="fas ${type==='tok'?'fa-check-circle':type==='ter'?'fa-times-circle':'fa-exclamation-circle'}"></i>${msg}`;
+  t.className=`show ${type}`;
+  clearTimeout(tt);tt=setTimeout(()=>{t.className=''},3200);
+}
+
+/* ── INIT ── */
+setDefaultDates();
+loadAll();
+setInterval(()=>loadAll(),60000);
+</script>
+</body>
+</html>
