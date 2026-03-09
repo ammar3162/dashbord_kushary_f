@@ -282,7 +282,7 @@ td.tm{color:#475569;font-size:10px}
 <div id="toast"></div>
 
 <script>
-const API = 'https://script.google.com/macros/s/AKfycbw-F4spqURxRH5FeUpwobJM8y49YPSH4V2f0OB649V71eVVNX7IbBojCNkFqt-PuzVp/exec';
+const API = 'https://script.google.com/macros/s/AKfycbyh_Bg3vkPPH7y8XOX2-jNwe1n6Yi1rCgCp2lJIU9_yDlR2Y-DsvDtBYmwW_d8YEU9R/exec';
 let ALL = [], RPT_ROWS = [];
 
 /* ── CLOCK ── */
@@ -309,10 +309,34 @@ function setDefaultDates(){
   $('rTo').value=today;
 }
 
-/* ── FETCH ── */
-async function apiFetch(qs){
-  const r=await fetch(`${API}?${qs}`);
-  return await r.json();
+/* ── FETCH via JSONP ── */
+function apiFetch(qs){
+  return new Promise((ok,fail)=>{
+    const cb='_cb'+Date.now()+'_'+Math.random().toString(36).slice(2);
+    const sc=document.createElement('script');
+    let done=false;
+    window[cb]=data=>{
+      done=true;
+      try{sc.remove()}catch(e){}
+      delete window[cb];
+      ok(data);
+    };
+    sc.onerror=()=>{
+      if(done)return;
+      try{sc.remove()}catch(e){}
+      delete window[cb];
+      fail(new Error('فشل الاتصال بالسكربت'));
+    };
+    sc.src=`${API}?${qs}&callback=${cb}`;
+    document.head.appendChild(sc);
+    setTimeout(()=>{
+      if(!done){
+        try{sc.remove()}catch(e){}
+        delete window[cb];
+        fail(new Error('انتهت مهلة الاتصال'));
+      }
+    },15000);
+  });
 }
 
 /* ── LOAD ALL ── */
