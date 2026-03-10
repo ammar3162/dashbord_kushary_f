@@ -552,7 +552,7 @@ function exportExcel(){
 }
 
 /* ── HELPERS ── */
-const $=id=>document.getElementById(id);
+function $(id){return document.getElementById(id);}
 const fmt=n=>Number(n).toLocaleString('ar-SA',{minimumFractionDigits:2,maximumFractionDigits:2});
 function dBadge(d){
   if(d===0) return`<span class="db dok"><i class="fas fa-check"></i> مطابق</span>`;
