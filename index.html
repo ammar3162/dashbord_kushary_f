@@ -1,576 +1,2642 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>نظام الإقفالات - صبيا وصامطة</title>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-:root{--p:#6366f1;--p2:#8b5cf6;--ok:#10b981;--warn:#f59e0b;--err:#ef4444;--info:#38bdf8;--bg:#0f172a;--card:#1e293b;--bdr:#334155}
-body{font-family:'Cairo',sans-serif;background:var(--bg);color:#e2e8f0;min-height:100vh;direction:rtl}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام كشري وأكثر - لوحة التحكم</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-/* ── HEADER ── */
-header{background:var(--card);border-bottom:1px solid var(--bdr);padding:0 24px;height:62px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:99}
-.logo{display:flex;align-items:center;gap:10px}
-.logo-ic{width:38px;height:38px;background:linear-gradient(135deg,var(--p),var(--p2));border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:17px}
-.logo h1{font-size:15px;font-weight:700;color:#f1f5f9}.logo span{font-size:11px;color:#64748b;display:block}
-.hdr-r{display:flex;align-items:center;gap:10px}
-#clk{font-size:12px;color:#64748b;font-weight:600;background:#0f172a;padding:5px 11px;border-radius:8px}
-.rbtn{padding:7px 14px;background:var(--p);border:none;border-radius:8px;color:#fff;font-family:'Cairo',sans-serif;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px}
-.rbtn:hover{opacity:.85}
-.rbtn.spin i{animation:spin .7s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --sidebar-width: 260px;
+            --header-height: 60px;
+        }
 
-/* ── TABS ── */
-.tabs{background:var(--card);border-bottom:1px solid var(--bdr);padding:0 24px;display:flex;gap:4px}
-.tab{padding:14px 20px;font-size:13px;font-weight:700;color:#64748b;cursor:pointer;border-bottom:3px solid transparent;transition:all .2s;display:flex;align-items:center;gap:7px;white-space:nowrap}
-.tab:hover{color:#94a3b8}
-.tab.active{color:var(--p);border-bottom-color:var(--p)}
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
 
-/* ── STATUS ── */
-.sbar{background:#0f172a;padding:7px 24px;display:flex;align-items:center;gap:8px;font-size:11px;border-bottom:1px solid var(--bdr)}
-.sdot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-.sdot.ok{background:var(--ok);animation:pulse 2s infinite}
-.sdot.ld{background:var(--warn)}
-.sdot.er{background:var(--err)}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: linear-gradient(180deg, var(--primary) 0%, #1a252f 100%);
+            box-shadow: -4px 0 20px rgba(0,0,0,0.1);
+            z-index: 1000;
+            transition: transform 0.3s ease;
+        }
 
-/* ── MAIN ── */
-main{padding:20px 24px;max-width:1440px;margin:0 auto}
-.page{display:none}.page.active{display:block}
-.sec{font-size:11px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px;display:flex;align-items:center;gap:7px}
-.sec::before{content:'';width:3px;height:13px;background:var(--p);border-radius:2px}
+        .sidebar.collapsed {
+            transform: translateX(calc(var(--sidebar-width) * 0.8));
+        }
 
-/* ── STAT CARDS ── */
-.sg{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:22px}
-.sc{background:var(--card);border:1px solid var(--bdr);border-radius:12px;padding:16px;transition:transform .2s}
-.sc:hover{transform:translateY(-2px)}
-.sc-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
-.sc-ic{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px}
-.sc1 .sc-ic{background:rgba(16,185,129,.15);color:var(--ok)}
-.sc2 .sc-ic{background:rgba(99,102,241,.15);color:var(--p)}
-.sc3 .sc-ic{background:rgba(56,189,248,.15);color:var(--info)}
-.sc4 .sc-ic{background:rgba(245,158,11,.15);color:var(--warn)}
-.sc5 .sc-ic{background:rgba(239,68,68,.15);color:var(--err)}
-.sc-v{font-size:21px;font-weight:900;color:#f1f5f9}
-.sc-l{font-size:11px;color:#64748b;margin-top:3px}
-.sc-sub{font-size:10px;color:#475569;margin-top:5px}
+        .sidebar-header {
+            padding: 20px;
+            background: rgba(255,255,255,0.1);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
 
-/* ── BADGES ── */
-.bdg{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:700}
-.b-gn{background:rgba(16,185,129,.15);color:var(--ok)}
-.b-yw{background:rgba(245,158,11,.15);color:var(--warn)}
-.b-rd{background:rgba(239,68,68,.15);color:var(--err)}
-.b-bl{background:rgba(99,102,241,.15);color:var(--p)}
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: white;
+            text-decoration: none;
+        }
 
-/* ── GRID ── */
-.mg{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+        .logo i {
+            font-size: 28px;
+            color: var(--warning);
+        }
 
-/* ── TABLE CARD ── */
-.tc{background:var(--card);border:1px solid var(--bdr);border-radius:12px;overflow:hidden;margin-bottom:20px}
-.th{padding:13px 16px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
-.tt{font-size:13px;font-weight:700;color:#f1f5f9;display:flex;align-items:center;gap:7px}
-.tw{overflow-x:auto;max-height:380px;overflow-y:auto}
-.tw::-webkit-scrollbar{width:3px;height:3px}
-.tw::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:3px}
-table{width:100%;border-collapse:collapse;font-size:11px}
-thead th{background:#0f172a;color:#475569;font-weight:700;padding:8px 11px;text-align:right;white-space:nowrap;position:sticky;top:0;z-index:1;border-bottom:1px solid var(--bdr)}
-tbody tr{border-bottom:1px solid #1a2740;transition:background .15s}
-tbody tr:hover{background:#1e2d45}
-tbody tr:last-child{border-bottom:none}
-td{padding:8px 11px;color:#cbd5e1;white-space:nowrap}
-td.nm{color:#f1f5f9;font-weight:700}
-td.am{font-weight:800;color:#f1f5f9}
-td.tm{color:#475569;font-size:10px}
-.db{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:20px;font-size:10px;font-weight:700}
-.dok{background:rgba(16,185,129,.15);color:var(--ok)}
-.dup{background:rgba(245,158,11,.15);color:var(--warn)}
-.ddn{background:rgba(239,68,68,.15);color:var(--err)}
+        .logo h2 {
+            font-size: 20px;
+            font-weight: 700;
+        }
 
-/* ── FILTERS ── */
-.filters{display:flex;gap:8px;padding:12px 16px;border-bottom:1px solid var(--bdr);flex-wrap:wrap;align-items:center}
-.fi-sm{padding:6px 10px;background:#0f172a;border:1.5px solid var(--bdr);border-radius:7px;color:#f1f5f9;font-family:'Cairo',sans-serif;font-size:11px;outline:none;cursor:pointer;transition:border-color .2s}
-.fi-sm:focus{border-color:var(--p)}
-.cbtn{padding:6px 12px;background:transparent;border:1.5px solid var(--bdr);border-radius:7px;color:#64748b;font-family:'Cairo',sans-serif;font-size:11px;cursor:pointer;transition:.2s;white-space:nowrap}
-.cbtn:hover{border-color:var(--err);color:var(--err)}
+        .toggle-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
 
-/* ── REPORTS PAGE ── */
-.rp-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
-.rp-card{background:var(--card);border:1px solid var(--bdr);border-radius:12px;padding:16px}
-.rp-card h3{font-size:11px;color:#64748b;margin-bottom:6px}
-.rp-card .val{font-size:20px;font-weight:900;color:#f1f5f9}
-.rp-card .sub{font-size:10px;color:#475569;margin-top:4px}
+        .toggle-btn:hover {
+            background: rgba(255,255,255,0.1);
+        }
 
-.date-range{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--bdr);flex-wrap:wrap}
-.date-range label{font-size:12px;color:#94a3b8;font-weight:600;white-space:nowrap}
-.date-range input,.date-range select{padding:7px 11px;background:#0f172a;border:1.5px solid var(--bdr);border-radius:8px;color:#f1f5f9;font-family:'Cairo',sans-serif;font-size:12px;outline:none}
-.date-range input:focus,.date-range select:focus{border-color:var(--p)}
-.run-btn{padding:8px 18px;background:linear-gradient(135deg,var(--p),var(--p2));border:none;border-radius:8px;color:#fff;font-family:'Cairo',sans-serif;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap}
-.run-btn:hover{opacity:.85}
-.exp-btn{padding:8px 16px;background:linear-gradient(135deg,var(--ok),#059669);border:none;border-radius:8px;color:#fff;font-family:'Cairo',sans-serif;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap;margin-right:auto}
-.exp-btn:hover{opacity:.85}
-.exp-btn:disabled{opacity:.4;cursor:not-allowed}
+        .sidebar-menu {
+            padding: 20px 0;
+        }
 
-/* ── CHART ── */
-.chart-wrap{padding:16px}
-.chart-bar-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-.chart-lbl{font-size:11px;color:#94a3b8;width:80px;text-align:left;flex-shrink:0}
-.chart-bar-bg{flex:1;height:22px;background:#0f172a;border-radius:6px;overflow:hidden}
-.chart-bar-fill{height:100%;border-radius:6px;display:flex;align-items:center;padding-right:8px;font-size:10px;font-weight:700;color:#fff;transition:width .8s ease;min-width:2px}
-.chart-val{font-size:11px;color:#94a3b8;width:90px;text-align:right;flex-shrink:0}
+        .menu-item {
+            position: relative;
+            margin: 5px 10px;
+        }
 
-/* ── EMPTY / SKELETON ── */
-.empty{padding:28px;text-align:center;color:#334155;font-size:12px}
-.empty i{font-size:26px;display:block;margin-bottom:7px;opacity:.3}
-.sk{background:linear-gradient(90deg,#1e293b 25%,#263248 50%,#1e293b 75%);background-size:200%;animation:sh 1.4s infinite;border-radius:5px;height:12px;margin:6px 0}
-@keyframes sh{0%{background-position:200%}100%{background-position:-200%}}
+        .menu-link {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px 15px;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
 
-/* ── TOAST ── */
-#toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%) translateY(14px);background:var(--card);border:1px solid var(--bdr);color:#f1f5f9;padding:9px 16px;border-radius:10px;font-size:12px;font-weight:700;z-index:999;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;display:flex;align-items:center;gap:7px;box-shadow:0 8px 20px rgba(0,0,0,.4)}
-#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-#toast.tok{border-color:var(--ok);color:var(--ok)}
-#toast.ter{border-color:var(--err);color:var(--err)}
-#toast.twn{border-color:var(--warn);color:var(--warn)}
+        .menu-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 0;
+            height: 100%;
+            background: linear-gradient(90deg, var(--secondary), var(--warning));
+            transition: width 0.3s ease;
+            z-index: -1;
+        }
 
-/* ── RESPONSIVE ── */
-@media(max-width:1100px){.sg{grid-template-columns:repeat(3,1fr)}.rp-grid{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:800px){.sg{grid-template-columns:repeat(2,1fr)}.mg{grid-template-columns:1fr}.rp-grid{grid-template-columns:1fr 1fr}}
-@media(max-width:520px){main{padding:12px}header{padding:0 14px}.tabs{padding:0 10px}.tab{padding:12px 10px;font-size:12px}.sg{grid-template-columns:1fr 1fr}}
-</style>
+        .menu-link:hover::before,
+        .menu-link.active::before {
+            width: 100%;
+        }
+
+        .menu-link:hover,
+        .menu-link.active {
+            color: white;
+            transform: translateX(-5px);
+        }
+
+        .menu-link i {
+            font-size: 18px;
+            width: 25px;
+            text-align: center;
+        }
+
+        .menu-link span {
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .menu-badge {
+            background: var(--danger);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            margin-left: auto;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-right: var(--sidebar-width);
+            min-height: 100vh;
+            transition: margin-right 0.3s ease;
+            padding: 20px;
+        }
+
+        .main-content.expanded {
+            margin-right: 60px;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            border-radius: 15px;
+            padding: 15px 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: slideDown 0.5s ease;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-box input {
+            padding: 10px 15px 10px 40px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            width: 300px;
+            transition: all 0.3s;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .notification-btn,
+        .profile-btn {
+            background: none;
+            border: none;
+            font-size: 20px;
+            color: var(--dark);
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 10px;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .notification-btn:hover,
+        .profile-btn:hover {
+            background: var(--light);
+            transform: translateY(-2px);
+        }
+
+        .notification-dot {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            width: 8px;
+            height: 8px;
+            background: var(--danger);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .profile-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 5px 10px;
+            background: var(--light);
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .profile-info:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .profile-img {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--secondary), var(--warning));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .profile-name {
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        /* Page Container */
+        .page-container {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            animation: fadeIn 0.5s ease;
+            min-height: calc(100vh - 140px);
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--light);
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .page-title i {
+            color: var(--secondary);
+        }
+
+        .page-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--secondary), #5dade2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success), #52be80);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, var(--warning), #f5b041);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger), #ec7063);
+            color: white;
+        }
+
+        /* Loading Spinner */
+        .loading {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 9999;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255,255,255,0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        /* Mobile Responsive */
+        .mobile-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .mobile-overlay.active {
+            display: block;
+            opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(100%);
+            }
+            
+            .sidebar.mobile-open {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-right: 0;
+            }
+            
+            .search-box input {
+                width: 200px;
+            }
+            
+            .header-left {
+                gap: 10px;
+            }
+        }
+
+        /* Animations */
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(231, 76, 60, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(231, 76, 60, 0);
+            }
+        }
+
+        /* Page Content */
+        .page-content {
+            animation: fadeIn 0.5s ease;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state i {
+            font-size: 64px;
+            color: #ddd;
+            margin-bottom: 20px;
+        }
+
+        .empty-state h3 {
+            font-size: 20px;
+            margin-bottom: 10px;
+            color: #666;
+        }
+
+        .empty-state p {
+            color: #999;
+        }
+    </style>
 </head>
 <body>
-
-<!-- HEADER -->
-<header>
-  <div class="logo">
-    <div class="logo-ic"><i class="fas fa-chart-line"></i></div>
-    <div><h1>نظام الإقفالات</h1><span>فروع صبيا وصامطة</span></div>
-  </div>
-  <div class="hdr-r">
-    <span id="clk">--:--:--</span>
-    <button class="rbtn" id="rbtn" onclick="loadAll(true)"><i class="fas fa-sync-alt"></i> تحديث</button>
-  </div>
-</header>
-
-<!-- TABS -->
-<div class="tabs">
-  <div class="tab active" id="tab-dash" onclick="switchTab('dash')">
-    <i class="fas fa-tachometer-alt"></i> داشبورد المدير
-  </div>
-  <div class="tab" id="tab-rep" onclick="switchTab('rep')">
-    <i class="fas fa-chart-bar"></i> تقارير المحاسب
-  </div>
-</div>
-
-<!-- STATUS -->
-<div class="sbar"><div class="sdot ld" id="sdot"></div><span id="stxt">جاري تحميل البيانات...</span></div>
-
-<main>
-
-<!-- ══════════════════════════════════════
-     صفحة المدير - DASHBOARD
-══════════════════════════════════════ -->
-<div class="page active" id="page-dash">
-
-  <div class="sec">ملخص اليوم</div>
-  <div class="sg" id="sg">
-    <div class="sc sc1"><div class="sk"></div><div class="sk" style="width:55%"></div></div>
-    <div class="sc sc2"><div class="sk"></div><div class="sk" style="width:55%"></div></div>
-    <div class="sc sc3"><div class="sk"></div><div class="sk" style="width:55%"></div></div>
-    <div class="sc sc4"><div class="sk"></div><div class="sk" style="width:55%"></div></div>
-    <div class="sc sc5"><div class="sk"></div><div class="sk" style="width:55%"></div></div>
-  </div>
-
-  <div class="sec">آخر إقفالات الفروع</div>
-  <div class="mg">
-    <div class="tc">
-      <div class="th">
-        <div class="tt"><i class="fas fa-map-marker-alt" style="color:var(--p)"></i> فرع صبيا <span class="bdg b-bl" id="c1">--</span></div>
-        <span style="font-size:11px;color:#64748b" id="t1">--</span>
-      </div>
-      <div class="tw" id="tb1"><div class="empty"><div class="sk"></div><div class="sk"></div></div></div>
-    </div>
-    <div class="tc">
-      <div class="th">
-        <div class="tt"><i class="fas fa-map-marker-alt" style="color:var(--warn)"></i> فرع صامطة <span class="bdg b-yw" id="c2">--</span></div>
-        <span style="font-size:11px;color:#64748b" id="t2">--</span>
-      </div>
-      <div class="tw" id="tb2"><div class="empty"><div class="sk"></div><div class="sk"></div></div></div>
-    </div>
-  </div>
-
-  <div class="sec">جميع السجلات</div>
-  <div class="tc">
-    <div class="filters">
-      <select class="fi-sm" id="fBr" onchange="filterAll()">
-        <option value="">كل الفروع</option>
-        <option value="صبيا">صبيا</option>
-        <option value="صامطة">صامطة</option>
-      </select>
-      <select class="fi-sm" id="fDf" onchange="filterAll()">
-        <option value="">كل الحالات</option>
-        <option value="ok">مطابق</option>
-        <option value="up">زيادة</option>
-        <option value="dn">نقص</option>
-      </select>
-      <input class="fi-sm" id="fEm" type="text" placeholder="اسم الموظف..." oninput="filterAll()" style="flex:1;min-width:130px">
-      <input class="fi-sm" id="fDt" type="date" onchange="filterAll()">
-      <button class="cbtn" onclick="clearF()"><i class="fas fa-times"></i> مسح</button>
-      <span style="font-size:11px;color:#475569" id="fCnt">--</span>
-    </div>
-    <div class="tw" style="max-height:420px" id="allTbl">
-      <div class="empty"><div class="sk"></div><div class="sk"></div><div class="sk"></div></div>
-    </div>
-  </div>
-
-</div>
-
-<!-- ══════════════════════════════════════
-     صفحة المحاسب - REPORTS
-══════════════════════════════════════ -->
-<div class="page" id="page-rep">
-
-  <div class="sec">إعداد التقرير</div>
-  <div class="tc">
-    <div class="date-range">
-      <label>من</label>
-      <input type="date" id="rFrom">
-      <label>إلى</label>
-      <input type="date" id="rTo">
-      <select class="fi-sm" id="rBr" style="padding:7px 11px">
-        <option value="all">كل الفروع</option>
-        <option value="صبيا">فرع صبيا</option>
-        <option value="صامطة">فرع صامطة</option>
-      </select>
-      <button class="run-btn" onclick="runReport()"><i class="fas fa-search"></i> تشغيل التقرير</button>
-      <button class="exp-btn" id="expBtn" onclick="exportExcel()" disabled><i class="fas fa-file-excel"></i> تصدير Excel</button>
-    </div>
-  </div>
-
-  <!-- REPORT STATS -->
-  <div class="rp-grid" id="rpStats">
-    <div class="rp-card"><h3>إجمالي المبيعات</h3><div class="val" id="rp_sales">--</div><div class="sub">ر.س</div></div>
-    <div class="rp-card"><h3>عدد الإقفالات</h3><div class="val" id="rp_count">--</div><div class="sub">إقفال</div></div>
-    <div class="rp-card"><h3>إجمالي الشبكة</h3><div class="val" id="rp_net">--</div><div class="sub">ر.س</div></div>
-    <div class="rp-card"><h3>إجمالي الفروق</h3><div class="val" id="rp_diff">--</div><div class="sub">ر.س</div></div>
-    <div class="rp-card"><h3>الزيادات</h3><div class="val" id="rp_inc" style="color:var(--warn)">--</div><div class="sub">ر.س</div></div>
-    <div class="rp-card"><h3>النقص</h3><div class="val" id="rp_dec" style="color:var(--err)">--</div><div class="sub">ر.س</div></div>
-    <div class="rp-card"><h3>نسبة المطابقة</h3><div class="val" id="rp_match" style="color:var(--ok)">--</div><div class="sub">%</div></div>
-    <div class="rp-card"><h3>متوسط الإقفال</h3><div class="val" id="rp_avg">--</div><div class="sub">ر.س</div></div>
-  </div>
-
-  <!-- CHART -->
-  <div class="sec">المبيعات حسب الفرع</div>
-  <div class="tc" style="margin-bottom:20px">
-    <div class="chart-wrap" id="rpChart">
-      <div class="empty"><i class="fas fa-chart-bar"></i>شغّل التقرير لعرض الرسم البياني</div>
-    </div>
-  </div>
-
-  <!-- REPORT TABLE -->
-  <div class="sec">تفاصيل السجلات</div>
-  <div class="tc">
-    <div class="tw" style="max-height:500px" id="rpTbl">
-      <div class="empty"><i class="fas fa-table"></i>شغّل التقرير لعرض البيانات</div>
-    </div>
-  </div>
-
-</div>
-</main>
-<div id="toast"></div>
-
-<script>
-const API = 'https://script.google.com/macros/s/AKfycbyh_Bg3vkPPH7y8XOX2-jNwe1n6Yi1rCgCp2lJIU9_yDlR2Y-DsvDtBYmwW_d8YEU9R/exec';
-let ALL = [], RPT_ROWS = [];
-
-/* ── CLOCK ── */
-function tick(){
-  const n=new Date(),h=n.getHours(),m=n.getMinutes(),s=n.getSeconds();
-  const ap=h>=12?'م':'ص',hh=(h%12||12).toString().padStart(2,'0');
-  $('clk').textContent=`${hh}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')} ${ap}`;
-}
-setInterval(tick,1000);tick();
-
-/* ── TABS ── */
-function switchTab(t){
-  ['dash','rep'].forEach(id=>{
-    $('tab-'+id).classList.toggle('active',id===t);
-    $('page-'+id).classList.toggle('active',id===t);
-  });
-}
-
-/* ── SET DEFAULT DATES ── */
-function setDefaultDates(){
-  const today=new Date().toISOString().split('T')[0];
-  const first=new Date(new Date().getFullYear(),new Date().getMonth(),1).toISOString().split('T')[0];
-  $('rFrom').value=first;
-  $('rTo').value=today;
-}
-
-/* ── FETCH via JSONP ── */
-function apiFetch(qs){
-  return new Promise((ok,fail)=>{
-    const cb='_cb'+Date.now()+'_'+Math.random().toString(36).slice(2);
-    const sc=document.createElement('script');
-    let done=false;
-    window[cb]=data=>{
-      done=true;
-      try{sc.remove()}catch(e){}
-      delete window[cb];
-      ok(data);
-    };
-    sc.onerror=()=>{
-      if(done)return;
-      try{sc.remove()}catch(e){}
-      delete window[cb];
-      fail(new Error('فشل الاتصال بالسكربت'));
-    };
-    sc.src=`${API}?${qs}&callback=${cb}`;
-    document.head.appendChild(sc);
-    setTimeout(()=>{
-      if(!done){
-        try{sc.remove()}catch(e){}
-        delete window[cb];
-        fail(new Error('انتهت مهلة الاتصال'));
-      }
-    },15000);
-  });
-}
-
-/* ── LOAD ALL ── */
-async function loadAll(manual=false){
-  const btn=$('rbtn'),dot=$('sdot'),stxt=$('stxt');
-  btn.classList.add('spin');
-  dot.className='sdot ld';
-  stxt.textContent='جاري تحميل البيانات...';
-  try{
-    const [sum,all]=await Promise.all([
-      apiFetch('action=getSummary'),
-      apiFetch('action=getAll')
-    ]);
-    if(!sum.success||!all.success) throw new Error('خطأ في الاستجابة');
-    buildStats(sum);
-    const s=all.sabya||[], m=all.samta||[];
-    buildBranch('tb1','c1','t1',s,'صبيا');
-    buildBranch('tb2','c2','t2',m,'صامطة');
-    ALL=[...s,...m].sort((a,b)=>b.date.localeCompare(a.date));
-    filterAll();
-    dot.className='sdot ok';
-    stxt.textContent='آخر تحديث: '+new Date().toLocaleTimeString('ar-SA')+' ← متزامن مع Google Sheets';
-    if(manual) toast('✅ تم التحديث','tok');
-  }catch(err){
-    dot.className='sdot er';
-    stxt.textContent='❌ خطأ: '+err.message;
-    toast('فشل التحميل','ter');
-  }
-  btn.classList.remove('spin');
-}
-
-/* ── STATS CARDS ── */
-function buildStats(s){
-  const t=s.today||{},sa=s.sabya||{},sm=s.samta||{};
-  const totDiff=Math.abs(t.totalDiff||0),totSys=t.totalSys||1;
-  const match=Math.max(0,Math.min(100,(100-totDiff/totSys*100)));
-  const mc=match>=98?'b-gn':match>=94?'b-yw':'b-rd';
-  $('sg').innerHTML=`
-    <div class="sc sc1">
-      <div class="sc-top"><div class="sc-ic"><i class="fas fa-coins"></i></div></div>
-      <div class="sc-v">${fmt(t.totalSales||0)}</div>
-      <div class="sc-l">مبيعات اليوم (ر.س)</div>
-      <div class="sc-sub">صبيا: ${fmt(sa.totalSales||0)} | صامطة: ${fmt(sm.totalSales||0)}</div>
-    </div>
-    <div class="sc sc2">
-      <div class="sc-top"><div class="sc-ic"><i class="fas fa-lock"></i></div></div>
-      <div class="sc-v">${t.count||0}</div>
-      <div class="sc-l">إقفالات اليوم</div>
-      <div class="sc-sub">صبيا: ${t.sabya||0} | صامطة: ${t.samta||0}</div>
-    </div>
-    <div class="sc sc3">
-      <div class="sc-top"><div class="sc-ic"><i class="fas fa-credit-card"></i></div></div>
-      <div class="sc-v">${fmt(t.totalNet||0)}</div>
-      <div class="sc-l">إجمالي الشبكة (ر.س)</div>
-    </div>
-    <div class="sc sc4">
-      <div class="sc-top"><div class="sc-ic"><i class="fas fa-arrow-up"></i></div></div>
-      <div class="sc-v">${fmt(t.totalInc||0)}</div>
-      <div class="sc-l">الزيادات (ر.س)</div>
-    </div>
-    <div class="sc sc5">
-      <div class="sc-top"><div class="sc-ic"><i class="fas fa-balance-scale"></i></div><span class="bdg ${mc}">${match.toFixed(1)}%</span></div>
-      <div class="sc-v">${fmt(totDiff)}</div>
-      <div class="sc-l">إجمالي الفروق (ر.س)</div>
-    </div>`;
-}
-
-/* ── BRANCH TABLE ── */
-function buildBranch(tbId,cId,tId,rows,br){
-  const tot=rows.reduce((s,r)=>s+(r.actual||0),0);
-  $(cId).textContent=rows.length+' إقفال';
-  $(tId).textContent='الإجمالي: '+fmt(tot)+' ر.س';
-  if(!rows.length){$(tbId).innerHTML=`<div class="empty"><i class="fas fa-inbox"></i>لا توجد إقفالات اليوم</div>`;return}
-  $(tbId).innerHTML=`<table>
-    <thead><tr><th>الوقت</th><th>الموظف</th><th>النظام</th><th>الفعلي</th><th>الفرق</th></tr></thead>
-    <tbody>${rows.slice(0,10).map(r=>`<tr>
-      <td class="tm">${r.timeStr||'—'}</td>
-      <td class="nm">${r.employee||'—'}</td>
-      <td class="am">${fmt(r.sys)}</td>
-      <td class="am">${fmt(r.actual)}</td>
-      <td>${dBadge(r.diff)}</td>
-    </tr>`).join('')}</tbody>
-  </table>`;
-}
-
-/* ── ALL TABLE ── */
-function filterAll(){
-  const br=$('fBr').value,df=$('fDf').value;
-  const em=$('fEm').value.trim().toLowerCase(),dt=$('fDt').value;
-  let rows=[...ALL];
-  if(br) rows=rows.filter(r=>r.branch===br);
-  if(df==='ok') rows=rows.filter(r=>r.diff===0);
-  else if(df==='up') rows=rows.filter(r=>r.diff>0);
-  else if(df==='dn') rows=rows.filter(r=>r.diff<0);
-  if(em) rows=rows.filter(r=>(r.employee||'').toLowerCase().includes(em));
-  if(dt) rows=rows.filter(r=>r.dateStr===dt);
-  $('fCnt').textContent=rows.length+' سجل';
-  if(!rows.length){$('allTbl').innerHTML=`<div class="empty"><i class="fas fa-search"></i>لا توجد نتائج</div>`;return}
-  $('allTbl').innerHTML=`<table>
-    <thead><tr><th>الفرع</th><th>التاريخ</th><th>الوقت</th><th>الموظف</th><th>النظام</th><th>كاش</th><th>مدى</th><th>فيزا</th><th>الشبكة</th><th>الفعلي</th><th>زيادة</th><th>نقص</th><th>الفرق</th></tr></thead>
-    <tbody>${rows.map(r=>`<tr>
-      <td><span class="bdg ${r.branch==='صبيا'?'b-bl':'b-yw'}">${r.branch}</span></td>
-      <td class="tm">${r.dateStr||'—'}</td><td class="tm">${r.timeStr||'—'}</td>
-      <td class="nm">${r.employee||'—'}</td>
-      <td class="am">${fmt(r.sys)}</td>
-      <td>${fmt(r.cash)}</td><td>${fmt(r.mada)}</td><td>${fmt(r.visa)}</td>
-      <td class="am">${fmt(r.net)}</td><td class="am">${fmt(r.actual)}</td>
-      <td style="color:${r.inc>0?'var(--warn)':'#334155'}">${r.inc>0?'+'+fmt(r.inc):'—'}</td>
-      <td style="color:${r.dec>0?'var(--err)':'#334155'}">${r.dec>0?'-'+fmt(r.dec):'—'}</td>
-      <td>${dBadge(r.diff)}</td>
-    </tr>`).join('')}</tbody>
-  </table>`;
-}
-function clearF(){$('fBr').value='';$('fDf').value='';$('fEm').value='';$('fDt').value='';filterAll()}
-
-/* ── RUN REPORT ── */
-async function runReport(){
-  const from=$('rFrom').value,to=$('rTo').value,br=$('rBr').value;
-  if(!from||!to){toast('اختر الفترة الزمنية','twn');return}
-  toast('جاري إعداد التقرير...','twn');
-  try{
-    const res=await apiFetch(`action=getReport&from=${from}&to=${to}&branch=${br}`);
-    if(!res.success) throw new Error(res.error);
-    RPT_ROWS=res.rows||[];
-    // Stats
-    const match=res.totalSys>0?Math.max(0,Math.min(100,100-Math.abs(res.totalDiff)/res.totalSys*100)):100;
-    const avg=res.count>0?res.totalSales/res.count:0;
-    $('rp_sales').textContent=fmt(res.totalSales);
-    $('rp_count').textContent=res.count;
-    $('rp_net').textContent=fmt(res.totalNet);
-    $('rp_diff').textContent=fmt(Math.abs(res.totalDiff));
-    $('rp_inc').textContent=fmt(res.totalInc);
-    $('rp_dec').textContent=fmt(res.totalDec);
-    $('rp_match').textContent=match.toFixed(1)+'%';
-    $('rp_avg').textContent=fmt(avg);
-    // Chart
-    buildChart(RPT_ROWS);
-    // Table
-    buildRptTable(RPT_ROWS);
-    $('expBtn').disabled=false;
-    toast('✅ تم إعداد التقرير','tok');
-  }catch(err){toast('خطأ: '+err.message,'ter')}
-}
-
-/* ── CHART ── */
-function buildChart(rows){
-  if(!rows.length){$('rpChart').innerHTML=`<div class="empty"><i class="fas fa-chart-bar"></i>لا توجد بيانات</div>`;return}
-  // Group by date
-  const byDate={};
-  rows.forEach(r=>{
-    const d=r.dateStr||'—';
-    if(!byDate[d]) byDate[d]={sabya:0,samta:0};
-    if(r.branch==='صبيا') byDate[d].sabya+=r.actual||0;
-    else byDate[d].samta+=r.actual||0;
-  });
-  const dates=Object.keys(byDate).sort().slice(-10);
-  const maxVal=Math.max(...dates.map(d=>byDate[d].sabya+byDate[d].samta),1);
-  $('rpChart').innerHTML=dates.map(d=>{
-    const s=byDate[d].sabya,m=byDate[d].samta,tot=s+m;
-    const sw=Math.round(s/maxVal*100),mw=Math.round(m/maxVal*100);
-    return`<div class="chart-bar-row">
-      <div class="chart-lbl">${d.slice(5)}</div>
-      <div style="flex:1;display:flex;flex-direction:column;gap:3px">
-        <div class="chart-bar-bg" title="صبيا: ${fmt(s)} ر.س">
-          <div class="chart-bar-fill" style="width:${sw}%;background:linear-gradient(90deg,var(--p),var(--p2))">صبيا</div>
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <a href="#" class="logo">
+                <i class="fas fa-utensils"></i>
+                <h2>كشري وأكثر</h2>
+            </a>
+            <button class="toggle-btn" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
         </div>
-        <div class="chart-bar-bg" title="صامطة: ${fmt(m)} ر.س">
-          <div class="chart-bar-fill" style="width:${mw}%;background:linear-gradient(90deg,var(--warn),#d97706)">صامطة</div>
+        
+        <nav class="sidebar-menu">
+            <div class="menu-item">
+                <a href="#" class="menu-link active" data-page="dashboard">
+                    <i class="fas fa-home"></i>
+                    <span>لوحة التحكم</span>
+                    <span class="menu-badge">جديد</span>
+                </a>
+            </div>
+            
+            <div class="menu-item">
+                <a href="#" class="menu-link" data-page="employees">
+                    <i class="fas fa-users"></i>
+                    <span>الموظفين</span>
+                </a>
+            </div>
+            
+            <div class="menu-item">
+                <a href="#" class="menu-link" data-page="financial">
+                    <i class="fas fa-money-bill-wave"></i>
+                    <span>العمليات المالية</span>
+                </a>
+            </div>
+            
+            <div class="menu-item">
+                <a href="#" class="menu-link" data-page="closing">
+                    <i class="fas fa-cash-register"></i>
+                    <span>إغلاق الصندوق</span>
+                </a>
+            </div>
+            
+            <div class="menu-item">
+                <a href="#" class="menu-link" data-page="leaves">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>الإجازات</span>
+                </a>
+            </div>
+            
+            <div class="menu-item">
+                <a href="#" class="menu-link" data-page="requests">
+                    <i class="fas fa-clipboard-list"></i>
+                    <span>الطلبات والشكاوى</span>
+                    <span class="menu-badge">3</span>
+                </a>
+            </div>
+            
+            <div class="menu-item">
+                <a href="#" class="menu-link" data-page="reports">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>التقارير</span>
+                </a>
+            </div>
+            
+            <div class="menu-item">
+                <a href="#" class="menu-link" data-page="whatsapp">
+                    <i class="fab fa-whatsapp"></i>
+                    <span>واتساب</span>
+                </a>
+            </div>
+            
+            <div class="menu-item">
+                <a href="#" class="menu-link" data-page="settings">
+                    <i class="fas fa-cog"></i>
+                    <span>الإعدادات</span>
+                </a>
+            </div>
+        </nav>
+    </aside>
+
+    <!-- Mobile Overlay -->
+    <div class="mobile-overlay" id="mobileOverlay" onclick="closeMobileSidebar()"></div>
+
+    <!-- Main Content -->
+    <main class="main-content" id="mainContent">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="البحث عن موظف، تقرير..." id="searchInput">
+                </div>
+            </div>
+            
+            <div class="header-right">
+                <button class="notification-btn" onclick="showNotifications()">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-dot"></span>
+                </button>
+                
+                <button class="profile-btn" onclick="toggleProfileMenu()">
+                    <div class="profile-info">
+                        <div class="profile-img">م</div>
+                        <span class="profile-name">مدير النظام</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                </button>
+            </div>
+        </header>
+
+        <!-- Page Container -->
+        <div class="page-container">
+            <div id="pageContent">
+                <!-- Dynamic content will be loaded here -->
+            </div>
         </div>
-      </div>
-      <div class="chart-val">${fmt(tot)} ر.س</div>
-    </div>`;
-  }).join('');
-}
+    </main>
 
-/* ── REPORT TABLE ── */
-function buildRptTable(rows){
-  if(!rows.length){$('rpTbl').innerHTML=`<div class="empty"><i class="fas fa-inbox"></i>لا توجد سجلات</div>`;return}
-  $('rpTbl').innerHTML=`<table>
-    <thead><tr><th>الفرع</th><th>التاريخ</th><th>الوقت</th><th>الموظف</th><th>النظام</th><th>كاش</th><th>مدى</th><th>فيزا</th><th>الشبكة</th><th>الفعلي</th><th>الفرق</th></tr></thead>
-    <tbody>${rows.map(r=>`<tr>
-      <td><span class="bdg ${r.branch==='صبيا'?'b-bl':'b-yw'}">${r.branch}</span></td>
-      <td class="tm">${r.dateStr||'—'}</td><td class="tm">${r.timeStr||'—'}</td>
-      <td class="nm">${r.employee||'—'}</td>
-      <td class="am">${fmt(r.sys)}</td>
-      <td>${fmt(r.cash)}</td><td>${fmt(r.mada)}</td><td>${fmt(r.visa)}</td>
-      <td class="am">${fmt(r.net)}</td><td class="am">${fmt(r.actual)}</td>
-      <td>${dBadge(r.diff)}</td>
-    </tr>`).join('')}</tbody>
-  </table>`;
-}
+    <!-- Loading Spinner -->
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+    </div>
 
-/* ── EXPORT EXCEL ── */
-function exportExcel(){
-  if(!RPT_ROWS.length){toast('لا توجد بيانات للتصدير','twn');return}
-  const from=$('rFrom').value,to=$('rTo').value,br=$('rBr').value;
-  const headers=['الفرع','التاريخ','الوقت','الموظف','إقفال النظام','الكاش','مدى','فيزا','إجمالي الشبكة','الإجمالي الفعلي','الزيادة','النقص','الفرق'];
-  const rows=RPT_ROWS.map(r=>[
-    r.branch,r.dateStr,r.timeStr,r.employee,
-    r.sys,r.cash,r.mada,r.visa,r.net,r.actual,r.inc,r.dec,r.diff
-  ]);
-  // Build CSV
-  const csv=[headers,...rows].map(r=>r.map(c=>`"${c}"`).join(',')).join('\n');
-  const bom='\uFEFF';
-  const blob=new Blob([bom+csv],{type:'text/csv;charset=utf-8'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');
-  a.href=url;
-  a.download=`تقرير_الإقفالات_${br==='all'?'كل_الفروع':br}_${from}_${to}.csv`;
-  a.click();
-  URL.revokeObjectURL(url);
-  toast('✅ تم تصدير الملف','tok');
-}
+    <script>
+        // Router System
+        class Router {
+            constructor() {
+                this.currentPage = 'dashboard';
+                this.pages = {};
+                this.init();
+            }
 
-/* ── HELPERS ── */
-function $(id){return document.getElementById(id);}
-const fmt=n=>Number(n).toLocaleString('ar-SA',{minimumFractionDigits:2,maximumFractionDigits:2});
-function dBadge(d){
-  if(d===0) return`<span class="db dok"><i class="fas fa-check"></i> مطابق</span>`;
-  if(d>0)   return`<span class="db dup">+${fmt(d)}</span>`;
-  return`<span class="db ddn">${fmt(d)}</span>`;
-}
-let tt;
-function toast(msg,type='tok'){
-  const t=$('toast');
-  t.innerHTML=`<i class="fas ${type==='tok'?'fa-check-circle':type==='ter'?'fa-times-circle':'fa-exclamation-circle'}"></i>${msg}`;
-  t.className=`show ${type}`;
-  clearTimeout(tt);tt=setTimeout(()=>{t.className=''},3200);
-}
+            init() {
+                // Register page navigation
+                document.querySelectorAll('.menu-link').forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const page = link.dataset.page;
+                        this.navigate(page);
+                    });
+                });
 
-/* ── INIT ── */
-setDefaultDates();
-loadAll();
-setInterval(()=>loadAll(),60000);
-</script>
+                // Load initial page
+                this.navigate('dashboard');
+            }
+
+            navigate(page) {
+                if (this.currentPage === page) return;
+
+                // Update active menu
+                document.querySelectorAll('.menu-link').forEach(link => {
+                    link.classList.remove('active');
+                });
+                document.querySelector(`[data-page="${page}"]`).classList.add('active');
+
+                // Show loading
+                this.showLoading();
+
+                // Load page content
+                setTimeout(() => {
+                    this.loadPage(page);
+                    this.currentPage = page;
+                    this.hideLoading();
+                }, 300);
+            }
+
+            loadPage(page) {
+                const pageContent = document.getElementById('pageContent');
+                
+                switch(page) {
+                    case 'dashboard':
+                        pageContent.innerHTML = this.getDashboardPage();
+                        this.initDashboard();
+                        break;
+                    case 'employees':
+                        pageContent.innerHTML = this.getEmployeesPage();
+                        this.initEmployees();
+                        break;
+                    case 'financial':
+                        pageContent.innerHTML = this.getFinancialPage();
+                        this.initFinancial();
+                        break;
+                    case 'closing':
+                        pageContent.innerHTML = this.getClosingPage();
+                        this.initClosing();
+                        break;
+                    case 'leaves':
+                        pageContent.innerHTML = this.getLeavesPage();
+                        this.initLeaves();
+                        break;
+                    case 'requests':
+                        pageContent.innerHTML = this.getRequestsPage();
+                        this.initRequests();
+                        break;
+                    case 'reports':
+                        pageContent.innerHTML = this.getReportsPage();
+                        this.initReports();
+                        break;
+                    case 'whatsapp':
+                        pageContent.innerHTML = this.getWhatsAppPage();
+                        this.initWhatsApp();
+                        break;
+                    case 'settings':
+                        pageContent.innerHTML = this.getSettingsPage();
+                        this.initSettings();
+                        break;
+                    default:
+                        pageContent.innerHTML = this.getNotFoundPage();
+                }
+            }
+
+            showLoading() {
+                document.getElementById('loading').classList.add('active');
+            }
+
+            hideLoading() {
+                document.getElementById('loading').classList.remove('active');
+            }
+
+            // Page Templates
+            getDashboardPage() {
+                return `
+                    <div class="page-header">
+                        <h1 class="page-title">
+                            <i class="fas fa-home"></i>
+                            لوحة التحكم
+                        </h1>
+                        <div class="page-actions">
+                            <button class="btn btn-primary" onclick="refreshDashboard()">
+                                <i class="fas fa-sync-alt"></i>
+                                تحديث
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="page-content">
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-icon" style="background: linear-gradient(135deg, #667eea, #764ba2);">
+                                    <i class="fas fa-users"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <h3>145</h3>
+                                    <p>إجمالي الموظفين</p>
+                                    <span class="stat-change positive">+12% هذا الشهر</span>
+                                </div>
+                            </div>
+                            
+                            <div class="stat-card">
+                                <div class="stat-icon" style="background: linear-gradient(135deg, #f093fb, #f5576c);">
+                                    <i class="fas fa-money-bill-wave"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <h3>48,750 ريال</h3>
+                                    <p>إجمالي الرواتب</p>
+                                    <span class="stat-change negative">-5% من الشهر الماضي</span>
+                                </div>
+                            </div>
+                            
+                            <div class="stat-card">
+                                <div class="stat-icon" style="background: linear-gradient(135deg, #4facfe, #00f2fe);">
+                                    <i class="fas fa-calendar-check"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <h3>23</h3>
+                                    <p>إجازات نشطة</p>
+                                    <span class="stat-change neutral">لا يوجد تغيير</span>
+                                </div>
+                            </div>
+                            
+                            <div class="stat-card">
+                                <div class="stat-icon" style="background: linear-gradient(135deg, #43e97b, #38f9d7);">
+                                    <i class="fas fa-cash-register"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <h3>125,430 ريال</h3>
+                                    <p>إجمالي المبيعات</p>
+                                    <span class="stat-change positive">+18% هذا الأسبوع</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="dashboard-charts">
+                            <div class="chart-container">
+                                <h3>حضور الموظفين هذا الأسبوع</h3>
+                                <canvas id="attendanceChart"></canvas>
+                            </div>
+                            
+                            <div class="chart-container">
+                                <h3>توزيع الموظفين حسب الفروع</h3>
+                                <canvas id="branchChart"></canvas>
+                            </div>
+                        </div>
+                        
+                        <div class="recent-activities">
+                            <h3>الأنشطة الحديثة</h3>
+                            <div class="activity-list">
+                                <div class="activity-item">
+                                    <div class="activity-icon" style="background: #e3f2fd;">
+                                        <i class="fas fa-user-plus" style="color: #2196f3;"></i>
+                                    </div>
+                                    <div class="activity-content">
+                                        <strong>موظف جديد</strong>
+                                        <p>تم إضافة أحمد محمد إلى فرع الرياض</p>
+                                        <span class="activity-time">منذ 5 دقائق</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="activity-item">
+                                    <div class="activity-icon" style="background: #f3e5f5;">
+                                        <i class="fas fa-calendar-alt" style="color: #9c27b0;"></i>
+                                    </div>
+                                    <div class="activity-content">
+                                        <strong>طلب إجازة</strong>
+                                        <p>فاطمة علي تطلب إجازة مرضية لمدة 3 أيام</p>
+                                        <span class="activity-time">منذ 15 دقيقة</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="activity-item">
+                                    <div class="activity-icon" style="background: #e8f5e9;">
+                                        <i class="fas fa-money-bill" style="color: #4caf50;"></i>
+                                    </div>
+                                    <div class="activity-content">
+                                        <strong>سلفة جديدة</strong>
+                                        <p>محمد سالم أخذ سلفة قدرها 500 ريال</p>
+                                        <span class="activity-time">منذ ساعة</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            getEmployeesPage() {
+                return `
+                    <div class="page-header">
+                        <h1 class="page-title">
+                            <i class="fas fa-users"></i>
+                            إدارة الموظفين
+                        </h1>
+                        <div class="page-actions">
+                            <button class="btn btn-success" onclick="addEmployee()">
+                                <i class="fas fa-plus"></i>
+                                إضافة موظف
+                            </button>
+                            <button class="btn btn-primary" onclick="exportEmployees()">
+                                <i class="fas fa-download"></i>
+                                تصدير
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="page-content">
+                        <div class="filters-section">
+                            <div class="filter-group">
+                                <label>الفرع:</label>
+                                <select id="branchFilter" onchange="filterEmployees()">
+                                    <option value="">جميع الفروع</option>
+                                    <option value="الرياض">الرياض</option>
+                                    <option value="جدة">جدة</option>
+                                    <option value="الدمام">الدمام</option>
+                                </select>
+                            </div>
+                            
+                            <div class="filter-group">
+                                <label>الحالة:</label>
+                                <select id="statusFilter" onchange="filterEmployees()">
+                                    <option value="">جميع الحالات</option>
+                                    <option value="نشط">نشط</option>
+                                    <option value="إجازة">إجازة</option>
+                                    <option value="مغادرة">مغادرة</option>
+                                </select>
+                            </div>
+                            
+                            <div class="filter-group">
+                                <label>البحث:</label>
+                                <input type="text" id="employeeSearch" placeholder="البحث بالاسم أو الرقم..." onkeyup="filterEmployees()">
+                            </div>
+                        </div>
+                        
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>رقم الموظف</th>
+                                        <th>الاسم</th>
+                                        <th>الفرع</th>
+                                        <th>المنصب</th>
+                                        <th>الراتب</th>
+                                        <th>الحالة</th>
+                                        <th>الهاتف</th>
+                                        <th>الإجراءات</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="employeesTableBody">
+                                    <tr>
+                                        <td>1001</td>
+                                        <td>
+                                            <div class="employee-info">
+                                                <div class="employee-avatar">أح</div>
+                                                <div>
+                                                    <strong>أحمد محمد</strong>
+                                                    <small>ahmed@example.com</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>الرياض</td>
+                                        <td>مدير فرع</td>
+                                        <td>8,500 ريال</td>
+                                        <td><span class="status-badge active">نشط</span></td>
+                                        <td>0501234567</td>
+                                        <td>
+                                            <button class="btn-icon" onclick="editEmployee(1001)" title="تعديل">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn-icon" onclick="viewEmployee(1001)" title="عرض">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="btn-icon danger" onclick="deleteEmployee(1001)" title="حذف">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>1002</td>
+                                        <td>
+                                            <div class="employee-info">
+                                                <div class="employee-avatar">فا</div>
+                                                <div>
+                                                    <strong>فاطمة علي</strong>
+                                                    <small>fatima@example.com</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>جدة</td>
+                                        <td>محاسبة</td>
+                                        <td>6,200 ريال</td>
+                                        <td><span class="status-badge leave">إجازة</span></td>
+                                        <td>0559876543</td>
+                                        <td>
+                                            <button class="btn-icon" onclick="editEmployee(1002)" title="تعديل">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn-icon" onclick="viewEmployee(1002)" title="عرض">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="btn-icon danger" onclick="deleteEmployee(1002)" title="حذف">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+            }
+
+            getFinancialPage() {
+                return `
+                    <div class="page-header">
+                        <h1 class="page-title">
+                            <i class="fas fa-money-bill-wave"></i>
+                            العمليات المالية
+                        </h1>
+                        <div class="page-actions">
+                            <button class="btn btn-warning" onclick="addWithdrawal()">
+                                <i class="fas fa-hand-holding-usd"></i>
+                                سلفة جديدة
+                            </button>
+                            <button class="btn btn-danger" onclick="addPenalty()">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                جزاء جديد
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="page-content">
+                        <div class="financial-summary">
+                            <div class="summary-card">
+                                <h3>السلف المستحقة</h3>
+                                <div class="summary-amount">15,750 ريال</div>
+                                <small>8 سلف نشطة</small>
+                            </div>
+                            <div class="summary-card">
+                                <h3>الجزاءات هذا الشهر</h3>
+                                <div class="summary-amount">3,200 ريال</div>
+                                <small>12 جزاء</small>
+                            </div>
+                            <div class="summary-card">
+                                <h3>الخصومات الإجازات</h3>
+                                <div class="summary-amount">8,900 ريال</div>
+                                <small>5 إجازات</small>
+                            </div>
+                        </div>
+                        
+                        <div class="tabs-container">
+                            <div class="tabs">
+                                <button class="tab-btn active" onclick="switchTab('withdrawals')">السلف</button>
+                                <button class="tab-btn" onclick="switchTab('penalties')">الجزاءات</button>
+                                <button class="tab-btn" onclick="switchTab('deductions')">الخصومات</button>
+                            </div>
+                            
+                            <div class="tab-content active" id="withdrawals-tab">
+                                <div class="table-container">
+                                    <table class="data-table">
+                                        <thead>
+                                            <tr>
+                                                <th>التاريخ</th>
+                                                <th>الموظف</th>
+                                                <th>المبلغ</th>
+                                                <th>السبب</th>
+                                                <th>الحالة</th>
+                                                <th>الإجراءات</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>2024-01-15</td>
+                                                <td>أحمد محمد</td>
+                                                <td>1,000 ريال</td>
+                                                <td>حالة طارئة</td>
+                                                <td><span class="status-badge pending">قيد المراجعة</span></td>
+                                                <td>
+                                                    <button class="btn-icon" title="اعتماد">
+                                                        <i class="fas fa-check"></i>
+                                                    </button>
+                                                    <button class="btn-icon danger" title="رفض">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            getClosingPage() {
+                return `
+                    <div class="page-header">
+                        <h1 class="page-title">
+                            <i class="fas fa-cash-register"></i>
+                            إغلاق الصندوق
+                        </h1>
+                        <div class="page-actions">
+                            <button class="btn btn-primary" onclick="quickClosing()">
+                                <i class="fas fa-plus"></i>
+                                إغلاق جديد
+                            </button>
+                            <button class="btn btn-success" onclick="exportClosing()">
+                                <i class="fas fa-file-excel"></i>
+                                تصدير Excel
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="page-content">
+                        <div class="closing-form">
+                            <h3>إغلاق الصندوق اليومي</h3>
+                            <form onsubmit="saveClosing(event)">
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label>التاريخ</label>
+                                        <input type="date" name="date" value="${new Date().toISOString().split('T')[0]}" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>الفرع</label>
+                                        <select name="branch" required>
+                                            <option value="الرياض">الرياض</option>
+                                            <option value="جدة">جدة</option>
+                                            <option value="الدمام">الدمام</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>الإجمالي المتوقع</label>
+                                        <input type="number" name="expected" value="5000" step="0.01" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>النقدي الفعلي</label>
+                                        <input type="number" name="cash" step="0.01" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>بطاقة</label>
+                                        <input type="number" name="card" value="0" step="0.01">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>تحويلات</label>
+                                        <input type="number" name="transfer" value="0" step="0.01">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>ملاحظات</label>
+                                    <textarea name="notes" rows="3"></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i>
+                                    حفظ الإغلاق
+                                </button>
+                            </form>
+                        </div>
+                        
+                        <div class="closing-history">
+                            <h3>سجل الإغلاقات</h3>
+                            <div class="table-container">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>التاريخ</th>
+                                            <th>الفرع</th>
+                                            <th>المتوقع</th>
+                                            <th>الفعلي</th>
+                                            <th>الفرق</th>
+                                            <th>الحالة</th>
+                                            <th>الإجراءات</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>2024-01-15</td>
+                                            <td>الرياض</td>
+                                            <td>5,000 ريال</td>
+                                            <td>4,980 ريال</td>
+                                            <td><span class="difference negative">-20 ريال</span></td>
+                                            <td><span class="status-badge approved">معتمد</span></td>
+                                            <td>
+                                                <button class="btn-icon" title="عرض">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                <button class="btn-icon" title="طباعة">
+                                                    <i class="fas fa-print"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            getLeavesPage() {
+                return `
+                    <div class="page-header">
+                        <h1 class="page-title">
+                            <i class="fas fa-calendar-alt"></i>
+                            إدارة الإجازات
+                        </h1>
+                        <div class="page-actions">
+                            <button class="btn btn-success" onclick="addLeave()">
+                                <i class="fas fa-plus"></i>
+                                إجازة جديدة
+                            </button>
+                            <button class="btn btn-primary" onclick="exportLeaves()">
+                                <i class="fas fa-download"></i>
+                                تصدير
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="page-content">
+                        <div class="leave-stats">
+                            <div class="stat-card">
+                                <h4>إجازات نشطة</h4>
+                                <div class="stat-number">23</div>
+                            </div>
+                            <div class="stat-card">
+                                <h4>إجازات هذا الشهر</h4>
+                                <div class="stat-number">45</div>
+                            </div>
+                            <div class="stat-card">
+                                <h4>إجازات سنوية مستهلكة</h4>
+                                <div class="stat-number">312</div>
+                            </div>
+                        </div>
+                        
+                        <div class="calendar-view">
+                            <h3>تقويم الإجازات</h3>
+                            <div id="leaveCalendar"></div>
+                        </div>
+                        
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>الموظف</th>
+                                        <th>نوع الإجازة</th>
+                                        <th>من</th>
+                                        <th>إلى</th>
+                                        <th>المدة</th>
+                                        <th>الخصم</th>
+                                        <th>الحالة</th>
+                                        <th>الإجراءات</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>أحمد محمد</td>
+                                        <td>سنوية</td>
+                                        <td>2024-01-20</td>
+                                        <td>2024-01-25</td>
+                                        <td>5 أيام</td>
+                                        <td>0 ريال</td>
+                                        <td><span class="status-badge approved">موافق</span></td>
+                                        <td>
+                                            <button class="btn-icon" title="تعديل">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn-icon danger" title="إلغاء">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+            }
+
+            getRequestsPage() {
+                return `
+                    <div class="page-header">
+                        <h1 class="page-title">
+                            <i class="fas fa-clipboard-list"></i>
+                            الطلبات والشكاوى
+                        </h1>
+                        <div class="page-actions">
+                            <button class="btn btn-primary" onclick="exportRequests()">
+                                <i class="fas fa-download"></i>
+                                تصدير
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="page-content">
+                        <div class="request-filters">
+                            <button class="filter-btn active" onclick="filterRequests('all')">الكل (15)</button>
+                            <button class="filter-btn" onclick="filterRequests('new')">جديد (3)</button>
+                            <button class="filter-btn" onclick="filterRequests('pending')">قيد المراجعة (7)</button>
+                            <button class="filter-btn" onclick="filterRequests('approved')">موافق (5)</button>
+                        </div>
+                        
+                        <div class="requests-list">
+                            <div class="request-card urgent">
+                                <div class="request-header">
+                                    <div class="request-info">
+                                        <h4>طلب إجازة عاجلة</h4>
+                                        <p>فاطمة علي - محاسبة</p>
+                                    </div>
+                                    <div class="request-meta">
+                                        <span class="request-type">إجازة</span>
+                                        <span class="request-time">منذ 30 دقيقة</span>
+                                    </div>
+                                </div>
+                                <div class="request-content">
+                                    <p>أحتاج إجازة عاجلة لمدة يومين بسبب ظروف عائلية طارئة</p>
+                                </div>
+                                <div class="request-actions">
+                                    <button class="btn btn-success btn-sm" onclick="approveRequest(1)">
+                                        <i class="fas fa-check"></i>
+                                        موافقة
+                                    </button>
+                                    <button class="btn btn-danger btn-sm" onclick="rejectRequest(1)">
+                                        <i class="fas fa-times"></i>
+                                        رفض
+                                    </button>
+                                    <button class="btn btn-primary btn-sm" onclick="viewRequest(1)">
+                                        <i class="fas fa-eye"></i>
+                                        عرض
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="request-card">
+                                <div class="request-header">
+                                    <div class="request-info">
+                                        <h4>شكوى من ساعات العمل</h4>
+                                        <p>محمد سالم - طاهي</p>
+                                    </div>
+                                    <div class="request-meta">
+                                        <span class="request-type">شكوى</span>
+                                        <span class="request-time">منذ ساعتين</span>
+                                    </div>
+                                </div>
+                                <div class="request-content">
+                                    <p>ساعات العمل الزائدة بدون مقابل مادي</p>
+                                </div>
+                                <div class="request-actions">
+                                    <button class="btn btn-success btn-sm" onclick="approveRequest(2)">
+                                        <i class="fas fa-check"></i>
+                                        موافقة
+                                    </button>
+                                    <button class="btn btn-danger btn-sm" onclick="rejectRequest(2)">
+                                        <i class="fas fa-times"></i>
+                                        رفض
+                                    </button>
+                                    <button class="btn btn-primary btn-sm" onclick="viewRequest(2)">
+                                        <i class="fas fa-eye"></i>
+                                        عرض
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            getReportsPage() {
+                return `
+                    <div class="page-header">
+                        <h1 class="page-title">
+                            <i class="fas fa-chart-bar"></i>
+                            التقارير
+                        </h1>
+                        <div class="page-actions">
+                            <button class="btn btn-primary" onclick="generateReport()">
+                                <i class="fas fa-file-pdf"></i>
+                                إنشاء تقرير PDF
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="page-content">
+                        <div class="report-filters">
+                            <div class="filter-group">
+                                <label>نوع التقرير</label>
+                                <select id="reportType">
+                                    <option value="financial">مالي</option>
+                                    <option value="employees">موظفين</option>
+                                    <option value="attendance">حضور</option>
+                                    <option value="performance">أداء</option>
+                                </select>
+                            </div>
+                            <div class="filter-group">
+                                <label>من تاريخ</label>
+                                <input type="date" id="fromDate">
+                            </div>
+                            <div class="filter-group">
+                                <label>إلى تاريخ</label>
+                                <input type="date" id="toDate">
+                            </div>
+                            <div class="filter-group">
+                                <label>الفرع</label>
+                                <select id="reportBranch">
+                                    <option value="">جميع الفروع</option>
+                                    <option value="الرياض">الرياض</option>
+                                    <option value="جدة">جدة</option>
+                                    <option value="الدمام">الدمام</option>
+                                </select>
+                            </div>
+                            <button class="btn btn-primary" onclick="runReport()">
+                                <i class="fas fa-search"></i>
+                                تشغيل التقرير
+                            </button>
+                        </div>
+                        
+                        <div class="report-visualization">
+                            <div class="chart-container">
+                                <h3>مخطط الأداء الشهري</h3>
+                                <canvas id="performanceChart"></canvas>
+                            </div>
+                            
+                            <div class="report-summary">
+                                <h3>ملخص التقرير</h3>
+                                <div class="summary-grid">
+                                    <div class="summary-item">
+                                        <label>إجمالي الموظفين</label>
+                                        <value>145</value>
+                                    </div>
+                                    <div class="summary-item">
+                                        <label>معدل الحضور</label>
+                                        <value>94.5%</value>
+                                    </div>
+                                    <div class="summary-item">
+                                        <label>إجمالي الساعات</label>
+                                        <value>23,450</value>
+                                    </div>
+                                    <div class="summary-item">
+                                        <label>الإنتاجية</label>
+                                        <value>87%</value>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            getWhatsAppPage() {
+                return `
+                    <div class="page-header">
+                        <h1 class="page-title">
+                            <i class="fab fa-whatsapp"></i>
+                            إرسال رسائل واتساب
+                        </h1>
+                        <div class="page-actions">
+                            <button class="btn btn-success" onclick="sendBulkWhatsApp()">
+                                <i class="fas fa-paper-plane"></i>
+                                إرسال جماعي
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="page-content">
+                        <div class="whatsapp-composer">
+                            <h3>إنشاء رسالة جديدة</h3>
+                            <form onsubmit="sendWhatsAppMessage(event)">
+                                <div class="form-group">
+                                    <label>المستلمون</label>
+                                    <div class="recipients-container">
+                                        <div class="recipient-type">
+                                            <input type="radio" name="recipientType" value="all" id="allEmployees" checked>
+                                            <label for="allEmployees">جميع الموظفين</label>
+                                        </div>
+                                        <div class="recipient-type">
+                                            <input type="radio" name="recipientType" value="branch" id="byBranch">
+                                            <label for="byBranch">حسب الفرع</label>
+                                            <select id="branchSelect" style="display: none;">
+                                                <option value="الرياض">الرياض</option>
+                                                <option value="جدة">جدة</option>
+                                                <option value="الدمام">الدمام</option>
+                                            </select>
+                                        </div>
+                                        <div class="recipient-type">
+                                            <input type="radio" name="recipientType" value="custom" id="custom">
+                                            <label for="custom">محدد</label>
+                                            <input type="text" id="customRecipients" placeholder="أدخل أرقام الجوال مفصولة بفواصل" style="display: none;">
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>نوع الرسالة</label>
+                                    <select id="messageType">
+                                        <option value="notification">إشعار عام</option>
+                                        <option value="reminder">تذكير</option>
+                                        <option value="alert">تنبيه عاجل</option>
+                                        <option value="greeting">تهنئة</option>
+                                        <option value="custom">مخصص</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>نص الرسالة</label>
+                                    <textarea id="messageText" rows="4" placeholder="اكتب رسالتك هنا..." required></textarea>
+                                    <div class="message-templates">
+                                        <small>قوالب سريعة:</small>
+                                        <button type="button" class="template-btn" onclick="useTemplate('holiday')">إجازة رسمية</button>
+                                        <button type="button" class="template-btn" onclick="useTemplate('meeting')">اجتماع مهم</button>
+                                        <button type="button" class="template-btn" onclick="useTemplate('salary')">الراتب</button>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>
+                                        <input type="checkbox" id="scheduleMessage">
+                                        جدولة الإرسال
+                                    </label>
+                                    <input type="datetime-local" id="scheduleTime" style="display: none;">
+                                </div>
+                                
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fab fa-whatsapp"></i>
+                                    إرسال الرسالة
+                                </button>
+                            </form>
+                        </div>
+                        
+                        <div class="whatsapp-history">
+                            <h3>سجل الرسائل</h3>
+                            <div class="message-list">
+                                <div class="message-item">
+                                    <div class="message-info">
+                                        <strong>إشعار عطل فني</strong>
+                                        <p>سيتم إيقاف النظام للصيانة من الساعة 2 صباحاً</p>
+                                        <small>مرسل لـ: جميع الموظفين (145)</small>
+                                    </div>
+                                    <div class="message-meta">
+                                        <span class="message-time">منذ ساعتين</span>
+                                        <span class="message-status success">تم الإرسال</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            getSettingsPage() {
+                return `
+                    <div class="page-header">
+                        <h1 class="page-title">
+                            <i class="fas fa-cog"></i>
+                            الإعدادات
+                        </h1>
+                    </div>
+                    
+                    <div class="page-content">
+                        <div class="settings-tabs">
+                            <button class="settings-tab active" onclick="switchSettingsTab('general')">عام</button>
+                            <button class="settings-tab" onclick="switchSettingsTab('notifications')">الإشعارات</button>
+                            <button class="settings-tab" onclick="switchSettingsTab('security">الأمان</button>
+                            <button class="settings-tab" onclick="switchSettingsTab('backup')">النسخ الاحتياطي</button>
+                        </div>
+                        
+                        <div class="settings-content active" id="general-settings">
+                            <div class="setting-group">
+                                <h3>معلومات النظام</h3>
+                                <div class="setting-item">
+                                    <label>اسم الشركة</label>
+                                    <input type="text" value="مطاعم كشري وأكثر">
+                                </div>
+                                <div class="setting-item">
+                                    <label>الفرع الرئيسي</label>
+                                    <select>
+                                        <option value="الرياض">الرياض</option>
+                                        <option value="جدة">جدة</option>
+                                        <option value="الدمام">الدمام</option>
+                                    </select>
+                                </div>
+                                <div class="setting-item">
+                                    <label>العملة</label>
+                                    <select>
+                                        <option value="SAR">ريال سعودي</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="setting-group">
+                                <h3>إعدادات الرواتب</h3>
+                                <div class="setting-item">
+                                    <label>يوم بدء الشهر</label>
+                                    <input type="number" value="1" min="1" max="31">
+                                </div>
+                                <div class="setting-item">
+                                    <label>الحد الأقصى للسلفة</label>
+                                    <input type="number" value="5000" step="100">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            getNotFoundPage() {
+                return `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>الصفحة غير موجودة</h3>
+                        <p>عذراً، الصفحة التي تبحث عنها غير متوفرة</p>
+                        <button class="btn btn-primary" onclick="router.navigate('dashboard')">
+                            <i class="fas fa-home"></i>
+                            العودة للرئيسية
+                        </button>
+                    </div>
+                `;
+            }
+
+            // Initialize functions for each page
+            initDashboard() {
+                // Initialize dashboard charts and data
+                console.log('Dashboard initialized');
+            }
+
+            initEmployees() {
+                // Initialize employees table and filters
+                console.log('Employees page initialized');
+            }
+
+            initFinancial() {
+                // Initialize financial operations
+                console.log('Financial page initialized');
+            }
+
+            initClosing() {
+                // Initialize cash closing
+                console.log('Closing page initialized');
+            }
+
+            initLeaves() {
+                // Initialize leaves management
+                console.log('Leaves page initialized');
+            }
+
+            initRequests() {
+                // Initialize requests management
+                console.log('Requests page initialized');
+            }
+
+            initReports() {
+                // Initialize reports
+                console.log('Reports page initialized');
+            }
+
+            initWhatsApp() {
+                // Initialize WhatsApp integration
+                console.log('WhatsApp page initialized');
+            }
+
+            initSettings() {
+                // Initialize settings
+                console.log('Settings page initialized');
+            }
+        }
+
+        // Initialize Router
+        const router = new Router();
+
+        // Sidebar Functions
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            const overlay = document.getElementById('mobileOverlay');
+            
+            sidebar.classList.toggle('collapsed');
+            mainContent.classList.toggle('expanded');
+            
+            if (window.innerWidth <= 768) {
+                sidebar.classList.toggle('mobile-open');
+                overlay.classList.toggle('active');
+            }
+        }
+
+        function closeMobileSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('mobileOverlay');
+            
+            sidebar.classList.remove('mobile-open');
+            overlay.classList.remove('active');
+        }
+
+        // Utility Functions
+        function showNotifications() {
+            // Show notifications dropdown
+            console.log('Show notifications');
+        }
+
+        function toggleProfileMenu() {
+            // Toggle profile menu
+            console.log('Toggle profile menu');
+        }
+
+        function refreshDashboard() {
+            router.showLoading();
+            setTimeout(() => {
+                router.loadPage('dashboard');
+                router.hideLoading();
+            }, 1000);
+        }
+
+        // Page Action Functions
+        function addEmployee() {
+            console.log('Add employee');
+        }
+
+        function editEmployee(id) {
+            console.log('Edit employee:', id);
+        }
+
+        function viewEmployee(id) {
+            console.log('View employee:', id);
+        }
+
+        function deleteEmployee(id) {
+            if (confirm('هل أنت متأكد من حذف هذا الموظف؟')) {
+                console.log('Delete employee:', id);
+            }
+        }
+
+        function addWithdrawal() {
+            console.log('Add withdrawal');
+        }
+
+        function addPenalty() {
+            console.log('Add penalty');
+        }
+
+        function quickClosing() {
+            console.log('Quick closing');
+        }
+
+        function addLeave() {
+            console.log('Add leave');
+        }
+
+        function sendBulkWhatsApp() {
+            console.log('Send bulk WhatsApp');
+        }
+
+        function generateReport() {
+            console.log('Generate report');
+        }
+
+        // Form Submissions
+        function saveClosing(event) {
+            event.preventDefault();
+            console.log('Save closing');
+        }
+
+        function sendWhatsAppMessage(event) {
+            event.preventDefault();
+            console.log('Send WhatsApp message');
+        }
+
+        // Filter Functions
+        function filterEmployees() {
+            console.log('Filter employees');
+        }
+
+        function filterRequests(type) {
+            console.log('Filter requests:', type);
+        }
+
+        function switchTab(tab) {
+            console.log('Switch tab:', tab);
+        }
+
+        function switchSettingsTab(tab) {
+            console.log('Switch settings tab:', tab);
+        }
+
+        function useTemplate(type) {
+            const templates = {
+                holiday: 'إجازة رسمية غداً، لا يوجد دوام',
+                meeting: 'اجتماع مهم غداً الساعة 10 صباحاً',
+                salary: 'تم تحويل الرواتب، يرجى التحقق'
+            };
+            
+            document.getElementById('messageText').value = templates[type] || '';
+        }
+
+        // Export Functions
+        function exportEmployees() {
+            console.log('Export employees');
+        }
+
+        function exportClosing() {
+            console.log('Export closing');
+        }
+
+        function exportLeaves() {
+            console.log('Export leaves');
+        }
+
+        function exportRequests() {
+            console.log('Export requests');
+        }
+
+        // Mobile Responsive
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 768) {
+                document.getElementById('mobileOverlay').classList.remove('active');
+                document.getElementById('sidebar').classList.remove('mobile-open');
+            }
+        });
+
+        // Search Functionality
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            console.log('Search:', searchTerm);
+        });
+
+        // Keyboard Shortcuts
+        document.addEventListener('keydown', (e) => {
+            // Ctrl/Cmd + K for search
+            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                e.preventDefault();
+                document.getElementById('searchInput').focus();
+            }
+            
+            // Ctrl/Cmd + B for sidebar toggle
+            if ((e.ctrlKey || e.metaKey) && e.key === 'b') {
+                e.preventDefault();
+                toggleSidebar();
+            }
+        });
+
+        // Initialize tooltips and other UI elements
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('Application initialized');
+        });
+    </script>
+
+    <!-- Additional Styles for Components -->
+    <style>
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+        }
+
+        .stat-content h3 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 5px;
+        }
+
+        .stat-content p {
+            color: #999;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .stat-change {
+            font-size: 12px;
+            font-weight: 500;
+            padding: 2px 8px;
+            border-radius: 12px;
+        }
+
+        .stat-change.positive {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .stat-change.negative {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .stat-change.neutral {
+            background: #e2e3e5;
+            color: #383d41;
+        }
+
+        /* Charts */
+        .dashboard-charts {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .chart-container {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+
+        .chart-container h3 {
+            margin-bottom: 15px;
+            color: var(--dark);
+        }
+
+        /* Activities */
+        .recent-activities {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+
+        .recent-activities h3 {
+            margin-bottom: 20px;
+            color: var(--dark);
+        }
+
+        .activity-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            transition: background 0.3s;
+        }
+
+        .activity-item:hover {
+            background: #e9ecef;
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .activity-content strong {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--dark);
+        }
+
+        .activity-content p {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .activity-time {
+            color: #999;
+            font-size: 12px;
+        }
+
+        /* Tables */
+        .table-container {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            margin-top: 20px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th {
+            background: #f8f9fa;
+            padding: 15px;
+            text-align: right;
+            font-weight: 600;
+            color: var(--dark);
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .data-table td {
+            padding: 15px;
+            border-bottom: 1px solid #dee2e6;
+            color: #495057;
+        }
+
+        .data-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .employee-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .employee-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--secondary), var(--warning));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-badge.active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-badge.leave {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-badge.pending {
+            background: #cce5ff;
+            color: #004085;
+        }
+
+        .status-badge.approved {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .btn-icon {
+            background: none;
+            border: none;
+            padding: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 0 2px;
+        }
+
+        .btn-icon:hover {
+            background: #f0f0f0;
+            transform: translateY(-2px);
+        }
+
+        .btn-icon.danger:hover {
+            background: #ffebee;
+            color: var(--danger);
+        }
+
+        /* Forms */
+        .filters-section {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .filter-group label {
+            font-size: 12px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .filter-group select,
+        .filter-group input {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--secondary);
+        }
+
+        /* Tabs */
+        .tabs-container {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            margin-top: 20px;
+        }
+
+        .tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .tab-btn {
+            padding: 15px 25px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            color: #666;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .tab-btn.active {
+            color: var(--secondary);
+            background: white;
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            right: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--secondary);
+        }
+
+        .tab-content {
+            padding: 20px;
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Request Cards */
+        .requests-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .request-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+
+        .request-card:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        .request-card.urgent {
+            border-right: 4px solid var(--danger);
+        }
+
+        .request-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+        }
+
+        .request-info h4 {
+            color: var(--dark);
+            margin-bottom: 5px;
+        }
+
+        .request-info p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .request-meta {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 5px;
+        }
+
+        .request-type {
+            background: var(--light);
+            color: var(--dark);
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .request-time {
+            color: #999;
+            font-size: 12px;
+        }
+
+        .request-content {
+            margin-bottom: 15px;
+            color: #495057;
+            line-height: 1.6;
+        }
+
+        .request-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        /* WhatsApp */
+        .whatsapp-composer {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+        }
+
+        .recipients-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .recipient-type {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .message-templates {
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .template-btn {
+            background: var(--light);
+            border: none;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .template-btn:hover {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .whatsapp-history {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+
+        .message-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .message-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .message-info strong {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--dark);
+        }
+
+        .message-info p {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .message-info small {
+            color: #999;
+            font-size: 12px;
+        }
+
+        .message-meta {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 5px;
+        }
+
+        .message-status {
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 12px;
+        }
+
+        .message-status.success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        /* Settings */
+        .settings-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .settings-tab {
+            padding: 10px 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            color: #666;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .settings-tab.active {
+            color: var(--secondary);
+        }
+
+        .settings-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            right: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--secondary);
+        }
+
+        .settings-content {
+            display: none;
+        }
+
+        .settings-content.active {
+            display: block;
+        }
+
+        .setting-group {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .setting-group h3 {
+            margin-bottom: 20px;
+            color: var(--dark);
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+
+        .setting-item label {
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        .setting-item input,
+        .setting-item select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            min-width: 200px;
+        }
+
+        /* Financial Summary */
+        .financial-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .summary-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+        }
+
+        .summary-card h3 {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .summary-amount {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 5px;
+        }
+
+        .summary-card small {
+            color: #999;
+            font-size: 12px;
+        }
+
+        /* Leave Stats */
+        .leave-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card h4 {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .stat-number {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        /* Calendar */
+        .calendar-view {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+        }
+
+        #leaveCalendar {
+            min-height: 300px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+        }
+
+        /* Request Filters */
+        .request-filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .filter-btn:hover {
+            background: var(--light);
+        }
+
+        .filter-btn.active {
+            background: var(--secondary);
+            color: white;
+            border-color: var(--secondary);
+        }
+
+        /* Report Filters */
+        .report-filters {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+        }
+
+        .report-visualization {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+
+        .report-summary {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .summary-item label {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .summary-item value {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        /* Closing Form */
+        .closing-form {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+        }
+
+        .closing-form h3 {
+            margin-bottom: 20px;
+            color: var(--dark);
+        }
+
+        .closing-history {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+        }
+
+        .closing-history h3 {
+            margin-bottom: 20px;
+            color: var(--dark);
+        }
+
+        .difference {
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 6px;
+        }
+
+        .difference.positive {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .difference.negative {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .dashboard-charts {
+                grid-template-columns: 1fr;
+            }
+            
+            .report-visualization {
+                grid-template-columns: 1fr;
+            }
+            
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .filters-section {
+                flex-direction: column;
+            }
+            
+            .request-filters {
+                flex-direction: column;
+            }
+            
+            .report-filters {
+                grid-template-columns: 1fr;
+            }
+            
+            .financial-summary {
+                grid-template-columns: 1fr;
+            }
+            
+            .leave-stats {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </body>
 </html>
